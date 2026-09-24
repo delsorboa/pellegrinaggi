@@ -1,0 +1,426 @@
+<!-- Created with Jaspersoft Studio version 7.0.8.final utlizzo versione della libreria JasperReports7.0.8-6f896111  -->
+<jasperReport name="foglio_servizio" language="java" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="30" bottomMargin="30" uuid="c3525a12-4303-4e4e-ad1e-52975c64e0db">
+	<dataset name="SpostamentiDataset" uuid="6a2cbbcd-e089-4d88-ae63-49c3b5f89826">
+		<field name="idMezzo" class="java.lang.Integer"/>
+		<field name="descrizioneMezzo" class="java.lang.String"/>
+		<field name="dataPartenza" class="java.lang.String"/>
+		<field name="dataArrivo" class="java.lang.String"/>
+		<field name="luogoPartenza" class="java.lang.String"/>
+		<field name="luogoArrivo" class="java.lang.String"/>
+		<field name="note" class="java.lang.String"/>
+		<field name="descrizioneViaggio" class="java.lang.String"/>
+		<field name="responsabili" class="java.util.List"/>
+	</dataset>
+	<dataset name="SistemazioniDataset" uuid="815ead30-f54f-4506-8530-1222fdd12883">
+		<field name="id" class="java.lang.Integer"/>
+		<field name="idPartecipante" class="java.lang.Integer"/>
+		<field name="idCamera" class="java.lang.Integer"/>
+		<field name="idSistemazione" class="java.lang.Integer"/>
+		<field name="descrizioneSistemazione" class="java.lang.String"/>
+		<field name="descrizioneCamera" class="java.lang.String"/>
+		<field name="alloggiaCon" class="java.lang.String"/>
+	</dataset>
+	<dataset name="ServiziDataset" uuid="612ed26c-a1ce-4daf-a9f5-3810aae43d89">
+		<field name="id" class="java.lang.Integer"/>
+		<field name="descrizione" class="java.lang.String"/>
+		<field name="valoreServizio" class="java.lang.String"/>
+		<field name="capiServizio" class="java.lang.String"/>
+		<field name="assistenzaMedica" class="java.lang.String"/>
+		<field name="assistenzaSpirituale" class="java.lang.String"/>
+		<field name="accompagna" class="java.lang.String"/>
+		<field name="con" class="java.lang.String"/>
+	</dataset>
+	<dataset name="MedaglieDataset" uuid="42420bac-8a15-4c12-a7ce-503525dbd7ed">
+		<field name="id" class="java.lang.Integer"/>
+		<field name="note" class="java.lang.String"/>
+	</dataset>
+	<parameter name="LOGO" class="java.awt.Image"/>
+	<parameter name="NOME" class="java.lang.String"/>
+	<parameter name="COGNOME" class="java.lang.String"/>
+	<parameter name="QUALIFICA" class="java.lang.String"/>
+	<parameter name="PELLEGRINAGGIO" class="java.lang.String"/>
+	<parameter name="DATA_PARTENZA" class="java.lang.String"/>
+	<parameter name="DATA_RITORNO" class="java.lang.String"/>
+	<parameter name="ID_PELLEGRINAGGIO" class="java.lang.Integer"/>
+	<parameter name="DATA_ADESIONE" class="java.lang.String"/>
+	<parameter name="ID_ADESIONE" class="java.lang.Integer"/>
+	<parameter name="DATA_SERVIZIO" class="java.lang.String"/>
+	<parameter name="LUOGO_SERVIZIO" class="java.lang.String"/>
+	<parameter name="NOTE_SERVIZIO" class="java.lang.String"/>
+	<parameter name="SPOSTAMENTI" class="java.util.List"/>
+	<parameter name="SISTEMAZIONI" class="java.util.List"/>
+	<parameter name="SERVIZI" class="java.util.List"/>
+	<parameter name="MEDAGLIE" class="java.util.List"/>
+	<parameter name="HAS_SPOSTAMENTI" class="java.lang.Boolean"/>
+	<parameter name="HAS_SISTEMAZIONI" class="java.lang.Boolean"/>
+	<parameter name="HAS_SERVIZI" class="java.lang.Boolean"/>
+	<parameter name="HAS_MEDAGLIE" class="java.lang.Boolean"/>
+	<parameter name="EXPORT_EXCEL" class="java.lang.Boolean"/>
+	<title height="155">
+		<element kind="image" uuid="f3e53082-3dbe-46d0-93f6-dc7a6346e3c2" x="0" y="0" width="65" height="65" scaleImage="RetainShape">
+			<expression><![CDATA[
+        $P{LOGO}
+    ]]></expression>
+		</element>
+		<element kind="staticText" uuid="5c1e7e3f-ed41-41b5-8130-ba1cef426450" x="80" y="0" width="435" height="22" fontName="SansSerif" fontSize="17.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[ORDINE DI MALTA]]></text>
+		</element>
+		<element kind="staticText" uuid="9680127b-d489-4696-8484-71b269ff80c1" x="80" y="22" width="435" height="20" fontName="SansSerif" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[ITALIA]]></text>
+		</element>
+		<element kind="staticText" uuid="9481c6de-9943-47be-8ab4-12b3e5c96dcb" x="80" y="42" width="435" height="22" forecolor="#C00000" fontName="SansSerif" fontSize="10.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[DELEGAZIONE DI ROMA - PELLEGRINAGGI]]></text>
+		</element>
+		<element kind="line" uuid="5d12ca39-ff2a-45eb-a098-414031e92dfa" x="0" y="70" width="515" height="1">
+			<pen lineWidth="1.0"/>
+		</element>
+		<element kind="textField" uuid="1f524d45-d5e6-4aa7-91a7-604f5c684010" x="30" y="80" width="455" height="28" fontName="SansSerif" fontSize="15.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<box>
+				<pen lineWidth="1.0"/>
+			</box>
+			<expression><![CDATA[
+                $P{PELLEGRINAGGIO} == null
+                    ? ""
+                    : $P{PELLEGRINAGGIO}
+            ]]></expression>
+		</element>
+		<element kind="textField" uuid="bc0bdf42-c177-4e14-9ad6-60377288a9bf" x="30" y="112" width="455" height="22" fontName="SansSerif" fontSize="11.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<expression><![CDATA[
+                ($P{DATA_PARTENZA} == null
+                    ? ""
+                    : $P{DATA_PARTENZA})
+                + " - "
+                +
+                ($P{DATA_RITORNO} == null
+                    ? ""
+                    : $P{DATA_RITORNO})
+            ]]></expression>
+		</element>
+	</title>
+	<detail>
+		<band height="50">
+			<element kind="rectangle" uuid="487061b3-2775-4127-9dcf-23663d1e322b" x="0" y="3" width="515" height="42">
+				<pen lineWidth="1.2"/>
+			</element>
+			<element kind="textField" uuid="f1435da3-a2cf-4623-83f0-53befc4747b3" x="10" y="10" width="495" height="28" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="11.0" bold="true" blankWhenNull="true" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[
+                    ($P{QUALIFICA} == null ? "" : $P{QUALIFICA})
+                    + "    "
+                    +
+                    ($P{COGNOME} == null ? "" : $P{COGNOME})
+                    + " "
+                    +
+                    ($P{NOME} == null ? "" : $P{NOME})
+                ]]></expression>
+			</element>
+		</band>
+		<band height="30">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_SPOSTAMENTI})
+            ]]></printWhenExpression>
+			<element kind="staticText" uuid="4a9c18cd-bc5b-4fa6-8020-5ebc5914596b" x="0" y="3" width="515" height="25" backcolor="#E9ECEF" mode="Opaque" fontName="SansSerif" fontSize="12.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+				<text><![CDATA[SPOSTAMENTI]]></text>
+			</element>
+		</band>
+		<band height="125">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_SPOSTAMENTI})
+            ]]></printWhenExpression>
+			<element kind="component" uuid="30812892-bb01-45c4-9bf9-5aaf857cd93a" x="0" y="0" width="515" height="125">
+				<component kind="list" printOrder="Vertical">
+					<datasetRun uuid="d99d8bee-7e9a-4773-ac65-2d754856aec9" subDataset="SpostamentiDataset">
+						<dataSourceExpression><![CDATA[
+                            new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
+                                $P{SPOSTAMENTI}
+                            )
+                        ]]></dataSourceExpression>
+					</datasetRun>
+					<contents width="515" height="125">
+						<element kind="rectangle" uuid="7c47269b-51cd-4a34-bb43-e607b1201a87" x="0" y="2" width="515" height="120" forecolor="#000000">
+							<pen lineWidth="1.2"/>
+						</element>
+						<element kind="textField" uuid="85a913f2-fb27-4162-aa56-beb9b7e85f2c" x="10" y="8" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="10.0" bold="true" blankWhenNull="true" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[
+                                (
+                                    ($F{descrizioneMezzo} == null
+                                        ? ""
+                                        : $F{descrizioneMezzo})
+                                    + "    " +
+                                    ($F{descrizioneViaggio} == null
+                                        ? ""
+                                        : $F{descrizioneViaggio})
+                                ).trim()
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="0e8db2c5-131b-418a-87c4-5b6a5e12d19c" x="10" y="30" width="495" height="17" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="9.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                (
+                                    ($F{dataPartenza} == null
+                                        ? ""
+                                        : $F{dataPartenza})
+                                    +
+                                    ($F{dataArrivo} == null
+                                        ? ""
+                                        : $F{dataArrivo})
+                                ).trim().isEmpty()
+                                    ? ""
+                                    :
+                                    "Partenza: "
+                                    +
+                                    ($F{dataPartenza} == null
+                                        ? ""
+                                        : $F{dataPartenza})
+                                    +
+                                    "    Arrivo: "
+                                    +
+                                    ($F{dataArrivo} == null
+                                        ? ""
+                                        : $F{dataArrivo})
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="79cfa6a6-dfd1-4cbf-96e5-912406b2559d" x="10" y="50" width="495" height="17" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="9.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                (
+                                    ($F{luogoPartenza} == null
+                                        ? ""
+                                        : $F{luogoPartenza})
+                                    +
+                                    ($F{luogoArrivo} == null
+                                        ? ""
+                                        : $F{luogoArrivo})
+                                ).trim().isEmpty()
+                                    ? ""
+                                    :
+                                    "Da: "
+                                    +
+                                    ($F{luogoPartenza} == null
+                                        ? ""
+                                        : $F{luogoPartenza})
+                                    +
+                                    "    A: "
+                                    +
+                                    ($F{luogoArrivo} == null
+                                        ? ""
+                                        : $F{luogoArrivo})
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="49aed594-1c1a-4093-88db-91adfd3625bc" x="10" y="70" width="495" height="17" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{note} == null
+                                || $F{note}.trim().isEmpty()
+                                    ? ""
+                                    : "Note: " + $F{note}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="615e2fd5-2a95-49fd-b013-f1dbb20541b1" x="10" y="90" width="495" height="25" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[
+                                $F{responsabili} == null
+                                || $F{responsabili}.isEmpty()
+                                    ? ""
+                                    : "Responsabili: "
+                                    +
+                                    $F{responsabili}
+                                        .stream()
+                                        .map(
+                                            r ->
+                                                ((it.pellegrinaggi.model.ResponsabileSpostamentoReport) r)
+                                                    .getNominativo()
+                                        )
+                                        .collect(
+                                            java.util.stream.Collectors.joining(", ")
+                                        )
+                            ]]></expression>
+						</element>
+					</contents>
+				</component>
+			</element>
+		</band>
+		<band height="30">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_SISTEMAZIONI})
+            ]]></printWhenExpression>
+			<element kind="staticText" uuid="c758f993-2b70-430c-a91b-c0251b7d9503" x="0" y="3" width="515" height="25" backcolor="#E9ECEF" mode="Opaque" fontName="SansSerif" fontSize="12.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+				<text><![CDATA[SISTEMAZIONE]]></text>
+			</element>
+		</band>
+		<band height="90">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_SISTEMAZIONI})
+            ]]></printWhenExpression>
+			<element kind="component" uuid="b7fe9be7-0a6b-4b69-a8aa-79b738c78515" x="0" y="0" width="515" height="90">
+				<component kind="list" printOrder="Vertical">
+					<datasetRun uuid="bf5cd248-13c6-4f50-9254-23ebab4acd7d" subDataset="SistemazioniDataset">
+						<dataSourceExpression><![CDATA[
+                            new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
+                                $P{SISTEMAZIONI}
+                            )
+                        ]]></dataSourceExpression>
+					</datasetRun>
+					<contents width="515" height="90">
+						<element kind="rectangle" uuid="35657710-b975-42d8-b4e6-db351d7c77b8" x="0" y="2" width="515" height="85" forecolor="#000000">
+							<pen lineWidth="1.2"/>
+						</element>
+						<element kind="textField" uuid="6c5da319-4c74-4eed-b9d3-dab8fb78bffb" x="10" y="8" width="495" height="17" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="10.0" bold="true" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{descrizioneSistemazione} == null
+                                || $F{descrizioneSistemazione}.trim().isEmpty()
+                                    ? ""
+                                    : $F{descrizioneSistemazione}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="df19d7f7-7a8a-4215-94cc-fdb8fbbe6eb4" x="10" y="29" width="495" height="17" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="9.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{descrizioneCamera} == null
+                                || $F{descrizioneCamera}.trim().isEmpty()
+                                    ? ""
+                                    : "Camera: " + $F{descrizioneCamera}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="4ab45ba2-88f7-4dea-915c-63ab7cdf121e" x="10" y="50" width="495" height="30" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="9.0" blankWhenNull="true" hTextAlign="Center" vTextAlign="Middle">
+							<expression><![CDATA[
+                                $F{alloggiaCon} == null
+                                || $F{alloggiaCon}.trim().isEmpty()
+                                    ? ""
+                                    : "Alloggia con: " + $F{alloggiaCon}
+                            ]]></expression>
+						</element>
+					</contents>
+				</component>
+			</element>
+		</band>
+		<band height="30">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_SERVIZI})
+            ]]></printWhenExpression>
+			<element kind="staticText" uuid="89d4a5a6-ddea-4eca-aa28-9079e4995865" x="0" y="3" width="515" height="25" backcolor="#E9ECEF" mode="Opaque" fontName="SansSerif" fontSize="12.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+				<text><![CDATA[SERVIZI]]></text>
+			</element>
+		</band>
+		<band height="170">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_SERVIZI})
+            ]]></printWhenExpression>
+			<element kind="component" uuid="996301c7-d2d7-4b5c-8a6b-eb488f9bce25" x="0" y="0" width="515" height="165">
+				<component kind="list" printOrder="Vertical">
+					<datasetRun uuid="585b917c-9740-4223-96ca-4eab98c33454" subDataset="ServiziDataset">
+						<dataSourceExpression><![CDATA[
+                            new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
+                                $P{SERVIZI}
+                            )
+                        ]]></dataSourceExpression>
+					</datasetRun>
+					<contents width="515" height="165">
+						<element kind="rectangle" uuid="15514525-c58f-4033-b4e4-b57a13b56ebb" x="0" y="2" width="515" height="160" forecolor="#000000">
+							<pen lineWidth="1.2"/>
+						</element>
+						<element kind="textField" uuid="334bbd39-9af8-4c14-915f-4c5e3b170537" x="10" y="8" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="10.0" bold="true" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{descrizione} == null
+                                || $F{descrizione}.trim().isEmpty()
+                                    ? ""
+                                    : $F{descrizione}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="a19ed3c6-0c15-41a4-a0c4-3b4bcefbc0d2" x="10" y="30" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="9.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{valoreServizio} == null
+                                || $F{valoreServizio}.trim().isEmpty()
+                                    ? ""
+                                    : $F{valoreServizio}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="a703147e-ef86-4e22-a250-2ffe31c0fb13" x="10" y="52" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{capiServizio} == null
+                                || $F{capiServizio}.trim().isEmpty()
+                                    ? ""
+                                    : "Capi servizio: " + $F{capiServizio}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="a1111111-1111-4111-8111-111111111111" x="10" y="74" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{assistenzaMedica} == null
+                                || $F{assistenzaMedica}.trim().isEmpty()
+                                    ? ""
+                                    : "Assistenza medica: " + $F{assistenzaMedica}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="a2222222-2222-4222-8222-222222222222" x="10" y="96" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{assistenzaSpirituale} == null
+                                || $F{assistenzaSpirituale}.trim().isEmpty()
+                                    ? ""
+                                    : "Assistenza spirituale: " + $F{assistenzaSpirituale}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="a93bad13-1b8e-417d-bb1d-7220b7fcd2ff" x="10" y="118" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{accompagna} == null
+                                || $F{accompagna}.trim().isEmpty()
+                                    ? ""
+                                    : "Accompagna: " + $F{accompagna}
+                            ]]></expression>
+						</element>
+						<element kind="textField" uuid="9c95ec50-faf1-4a43-800b-519497578303" x="10" y="140" width="495" height="18" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="8.0" blankWhenNull="true" hTextAlign="Center">
+							<expression><![CDATA[
+                                $F{con} == null
+                                || $F{con}.trim().isEmpty()
+                                    ? ""
+                                    : "Con: " + $F{con}
+                            ]]></expression>
+						</element>
+					</contents>
+				</component>
+			</element>
+		</band>
+		<band height="30">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_MEDAGLIE})
+            ]]></printWhenExpression>
+			<element kind="staticText" uuid="5cc67086-a00a-4046-898a-3631b00423ba" x="0" y="3" width="515" height="25" backcolor="#E9ECEF" mode="Opaque" fontName="SansSerif" fontSize="12.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+				<text><![CDATA[NOTA]]></text>
+			</element>
+		</band>
+		<band height="80">
+			<printWhenExpression><![CDATA[
+                Boolean.TRUE.equals($P{HAS_MEDAGLIE})
+            ]]></printWhenExpression>
+			<element kind="component" uuid="cbadcf56-77fb-41c9-8998-9c7f9c311934" x="0" y="0" width="515" height="80">
+				<component kind="list" printOrder="Vertical">
+					<datasetRun uuid="87652c3f-742f-4281-8717-4b9e5166240c" subDataset="MedaglieDataset">
+						<dataSourceExpression><![CDATA[
+                            new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource(
+                                $P{MEDAGLIE}
+                            )
+                        ]]></dataSourceExpression>
+					</datasetRun>
+					<contents width="515" height="80">
+						<element kind="rectangle" uuid="456f376c-69bf-4607-8ee3-10e0c8396f37" x="0" y="2" width="515" height="75" forecolor="#000000">
+							<pen lineWidth="1.2"/>
+						</element>
+						<element kind="textField" uuid="3b10e2c4-7978-430d-9715-b080a770c44f" x="10" y="8" width="495" height="65" positionType="Float" removeLineWhenBlank="true" fontName="SansSerif" fontSize="9.0" blankWhenNull="true" hTextAlign="Center" vTextAlign="Top">
+							<expression><![CDATA[
+                                $F{note} == null
+                                    ? ""
+                                    : $F{note}
+                            ]]></expression>
+						</element>
+					</contents>
+				</component>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="25">
+		<printWhenExpression><![CDATA[
+            !Boolean.TRUE.equals($P{EXPORT_EXCEL})
+        ]]></printWhenExpression>
+		<element kind="line" uuid="665673e7-ee0b-474e-9113-f495669787da" x="0" y="2" width="515" height="1">
+			<pen lineWidth="1.0"/>
+		</element>
+		<element kind="textField" uuid="acd94abe-7c39-4c93-b7d5-79c596300589" x="0" y="5" width="515" height="17" fontName="SansSerif" fontSize="8.0" hTextAlign="Center" vTextAlign="Middle">
+			<expression><![CDATA[
+                "Pagina " + $V{PAGE_NUMBER}
+            ]]></expression>
+		</element>
+	</pageFooter>
+</jasperReport>

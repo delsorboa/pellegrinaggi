@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Sistemazioni</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+
+</head>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const checkboxes =
+        document.querySelectorAll(
+            'input[name="idPartecipanti"]'
+        );
+
+    const sistemazioneSelect =
+        document.getElementById("idSistemazione");
+
+    const cameraInput =
+        document.getElementById("nuovaCamera");
+
+    const cameraInfo =
+        document.getElementById("cameraInfo");
+
+    const salvaButton =
+        document.querySelector('button[type="submit"]');
+
+
+    function aggiornaSistemazione() {
+
+        const sistemazioniSelezionate = new Set();
+        const camereSelezionate = new Set();
+
+        let primaSistemazione = null;
+        let primaCamera = null;
+
+
+        checkboxes.forEach(function (checkbox) {
+
+            if (!checkbox.checked) {
+                return;
+            }
+
+            const sistemazione =
+                checkbox.dataset.sistemazione;
+
+            const camera =
+                checkbox.dataset.camera;
+
+
+            if (sistemazione) {
+
+                sistemazioniSelezionate.add(
+                    sistemazione
+                );
+
+                if (primaSistemazione === null) {
+                    primaSistemazione =
+                        sistemazione;
+                }
+            }
+
+
+            if (camera) {
+
+                camereSelezionate.add(
+                    camera
+                );
+
+                if (primaCamera === null) {
+                    primaCamera =
+                        camera;
+                }
+            }
+
+        });
+
+
+        // =====================================================
+        // NESSUNA SISTEMAZIONE
+        // =====================================================
+
+        if (sistemazioniSelezionate.size === 0) {
+
+            sistemazioneSelect.value = "";
+            cameraInput.value = "";
+
+            cameraInfo.textContent =
+                "Inserisci un riferimento per identificare la camera.";
+
+            cameraInfo.className =
+                "form-text text-muted";
+
+            salvaButton.disabled = false;
+
+            return;
+        }
+
+
+        // =====================================================
+        // PIÙ SISTEMAZIONI
+        // =====================================================
+
+        if (sistemazioniSelezionate.size > 1) {
+
+            cameraInfo.textContent =
+                "Attenzione: hai selezionato partecipanti " +
+                "appartenenti a sistemazioni diverse.";
+
+            cameraInfo.className =
+                "form-text text-danger fw-bold";
+
+            salvaButton.disabled = true;
+
+            return;
+        }
+
+
+        // =====================================================
+        // UNA SOLA SISTEMAZIONE
+        // =====================================================
+
+        sistemazioneSelect.value =
+            primaSistemazione;
+
+
+        // =====================================================
+        // PIÙ CAMERE
+        // =====================================================
+
+        if (camereSelezionate.size > 1) {
+
+            cameraInfo.textContent =
+                "Attenzione: hai selezionato partecipanti " +
+                "assegnati a camere diverse.";
+
+            cameraInfo.className =
+                "form-text text-danger fw-bold";
+
+            salvaButton.disabled = true;
+
+            return;
+        }
+
+
+        // =====================================================
+        // UNA SOLA CAMERA
+        // =====================================================
+
+        if (primaCamera !== null) {
+
+            cameraInput.value =
+                primaCamera;
+
+            cameraInfo.textContent =
+                "Sistemazione e camera impostate automaticamente.";
+
+            cameraInfo.className =
+                "form-text text-success";
+
+        }
+
+
+        salvaButton.disabled = false;
+
+    }
+
+
+    checkboxes.forEach(function (checkbox) {
+
+        checkbox.addEventListener(
+            "change",
+            aggiornaSistemazione
+        );
+
+    });
+
+});
+
+</script>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const checkboxes =
+            document.querySelectorAll('input[name="idPartecipanti"]');
+
+        const cameraInput =
+            document.getElementById("nuovaCamera");
+
+        const cameraInfo =
+            document.getElementById("cameraInfo");
+
+        const salvaButton =
+            document.querySelector('button[type="submit"]');
+
+
+        function aggiornaCamera() {
+
+            const camereSelezionate = new Set();
+
+            let primaCamera = null;
+
+
+            // =====================================================
+            // CERCA LE CAMERE DEI PARTECIPANTI SELEZIONATI
+            // =====================================================
+
+            checkboxes.forEach(function (checkbox) {
+
+                if (!checkbox.checked) {
+                    return;
+                }
+
+                const camera = checkbox.dataset.camera;
+
+                if (camera) {
+
+                    camereSelezionate.add(camera);
+
+                    if (primaCamera === null) {
+                        primaCamera = camera;
+                    }
+
+                }
+
+            });
+
+
+            // =====================================================
+            // NESSUN COMPAGNO CON CAMERA
+            // =====================================================
+
+            if (camereSelezionate.size === 0) {
+
+                cameraInput.value = "";
+
+                cameraInfo.textContent =
+                    "Inserisci un riferimento per identificare la camera.";
+
+                cameraInfo.className =
+                    "form-text text-muted";
+
+                salvaButton.disabled = false;
+
+                return;
+
+            }
+
+
+            // =====================================================
+            // CONFLITTO TRA CAMERE
+            // =====================================================
+
+            if (camereSelezionate.size > 1) {
+
+                cameraInfo.textContent =
+                    "Attenzione: hai selezionato partecipanti " +
+                    "assegnati a camere diverse. " +
+                    "Seleziona compagni della stessa camera.";
+
+                cameraInfo.className =
+                    "form-text text-danger fw-bold";
+
+                salvaButton.disabled = true;
+
+                return;
+
+            }
+
+
+            // =====================================================
+            // UNA SOLA CAMERA
+            // =====================================================
+
+            cameraInput.value = primaCamera;
+
+            cameraInfo.textContent =
+                "Camera impostata automaticamente in base " +
+                "al compagno selezionato.";
+
+            cameraInfo.className =
+                "form-text text-success";
+
+            salvaButton.disabled = false;
+
+        }
+
+
+        // =========================================================
+        // EVENTO CHECKBOX
+        // =========================================================
+
+        checkboxes.forEach(function (checkbox) {
+
+            checkbox.addEventListener("change", function () {
+
+                aggiornaCamera();
+
+            });
+
+        });
+
+
+    });
+
+</script>
+
+
+
+
+<body>
+
+
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}">
+</div>
+
+
+<div class="container mt-5 pt-4">
+
+
+    <!-- ====================================================== -->
+    <!-- INTESTAZIONE -->
+    <!-- ====================================================== -->
+
+    <div class="mb-4">
+
+        <h2>
+            Sistemazioni del partecipante
+        </h2>
+
+
+        <p class="text-muted mb-0">
+
+            <strong th:text="${adesione.partecipante.cognome
+                              + ' '
+                              + adesione.partecipante.nome}">
+            </strong>
+
+            <span class="mx-2">·</span>
+
+            <span>
+
+                Pellegrinaggio:
+
+                <strong th:text="${adesione.pellegrinaggio.nome}">
+                </strong>
+
+            </span>
+
+        </p>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- MESSAGGIO DI SUCCESSO -->
+    <!-- ====================================================== -->
+
+    <div th:if="${success}"
+         class="alert alert-success"
+         th:text="${success}">
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- FORM AGGIUNGI SISTEMAZIONE -->
+    <!-- VISIBILE SOLO SE IL PARTECIPANTE NON HA SISTEMAZIONE -->
+    <!-- ====================================================== -->
+
+    <div th:if="${#lists.isEmpty(sistemazioni)}"
+         class="card shadow-sm mb-4">
+
+
+        <div class="card-header bg-dark text-white">
+
+            <strong>
+                Aggiungi sistemazione
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <form method="post"
+                  th:action="@{/admin/adesioni/{id}/sistemazioni(
+                              id=${adesione.id})}">
+
+
+                <!-- ================================================== -->
+                <!-- SISTEMAZIONE -->
+                <!-- ================================================== -->
+
+                <div class="mb-4">
+
+                    <label for="idSistemazione"
+                           class="form-label">
+
+                        Sistemazione
+
+                    </label>
+
+
+                    <select id="idSistemazione"
+                            name="idSistemazione"
+                            class="form-select"
+                            required>
+
+                        <option value="">
+                            -- Seleziona una sistemazione --
+                        </option>
+
+
+                        <option th:each="sistemazione : ${sistemazioniDisponibili}"
+                                th:value="${sistemazione.id}"
+                                th:text="${sistemazione.descrizione}">
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ================================================== -->
+                <!-- CAMERA -->
+                <!-- ================================================== -->
+
+                <div class="mb-4">
+
+                    <label for="nuovaCamera"
+                           class="form-label">
+
+                        Camera
+
+                    </label>
+
+
+                    <input type="text"
+                           id="nuovaCamera"
+                           name="nuovaCamera"
+                           class="form-control"
+                           placeholder="Es. Camera 1"
+                           required>
+                           
+                      <div id="cameraInfo"
+				         class="form-text">
+				    </div>
+
+
+                    <div class="form-text">
+
+                        Inserisci un riferimento per identificare
+                        la camera.
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================== -->
+                <!-- PARTECIPANTE PRINCIPALE -->
+                <!-- ================================================== -->
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Partecipante
+                    </label>
+
+
+                    <input type="text"
+                           class="form-control"
+                           th:value="${adesione.partecipante.cognome
+                                      + ' '
+                                      + adesione.partecipante.nome}"
+                           readonly>
+
+                </div>
+
+
+<!-- ================================================== -->
+<!-- COMPAGNI -->
+<!-- ================================================== -->
+
+<div class="mb-4">
+
+    <label class="form-label">
+        Partecipanti compagni
+    </label>
+
+    <div class="border rounded p-3">
+
+        <!-- Nessun partecipante -->
+
+        <div th:if="${#lists.isEmpty(partecipanti)}"
+             class="text-muted">
+
+            Nessun altro partecipante disponibile.
+
+        </div>
+
+
+        <!-- Lista partecipanti -->
+
+        <div th:each="partecipante : ${partecipanti}"
+             class="form-check mb-2">
+
+
+            <!-- CHECKBOX -->
+
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="idPartecipanti"
+                   th:value="${partecipante.id}"
+                   th:id="${'partecipante-' + partecipante.id}"
+                   th:data-camera="${camerePartecipanti[partecipante.id]}"
+                   th:data-sistemazione="${sistemazioniPartecipanti[partecipante.id]}">
+
+
+            <!-- NOME -->
+
+            <label class="form-check-label"
+                   th:for="${'partecipante-' + partecipante.id}">
+
+                <span th:text="${partecipante.cognome
+                                + ' '
+                                + partecipante.nome}">
+                </span>
+
+
+                <!-- SISTEMAZIONE -->
+
+                <span th:if="${sistemazioniPartecipanti[partecipante.id] != null}"
+                      class="badge bg-primary ms-2">
+
+                    <span th:text="${nomiSistemazioniPartecipanti[partecipante.id]}">
+                    </span>
+
+                </span>
+
+
+                <!-- CAMERA -->
+
+                <span th:if="${camerePartecipanti[partecipante.id] != null}"
+                      class="badge bg-secondary ms-1">
+
+                    Camera:
+
+                    <span th:text="${camerePartecipanti[partecipante.id]}">
+                    </span>
+
+                </span>
+
+
+                <!-- NESSUNA SISTEMAZIONE -->
+
+                <span th:if="${sistemazioniPartecipanti[partecipante.id] == null}"
+                      class="badge bg-light text-dark border ms-2">
+
+                    Non assegnato
+
+                </span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+                <!-- ================================================== -->
+                <!-- PULSANTI -->
+                <!-- ================================================== -->
+
+                <div class="mt-4">
+
+
+                    <a class="btn btn-secondary"
+                       th:href="@{/admin/adesioni/modifica/{id}(
+                                    id=${adesione.id})}">
+
+                        ← Annulla
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn btn-success">
+
+                        Salva sistemazione
+
+                    </button>
+
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- NESSUNA SISTEMAZIONE -->
+    <!-- ====================================================== -->
+
+    <div th:if="${#lists.isEmpty(sistemazioni)}"
+         class="alert alert-info">
+
+        Nessuna sistemazione associata a questo partecipante.
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- SISTEMAZIONI DEL PARTECIPANTE -->
+    <!-- ====================================================== -->
+
+    <div th:unless="${#lists.isEmpty(sistemazioni)}">
+
+
+        <div class="table-responsive">
+
+
+            <table class="table table-striped table-bordered align-middle">
+
+
+                <!-- ================================================== -->
+                <!-- HEADER -->
+                <!-- ================================================== -->
+
+                <thead class="table-dark">
+
+                <tr>
+
+                    <th>
+                        Sistemazione
+                    </th>
+
+                    <th>
+                        Camera
+                    </th>
+
+                    <th>
+                        Alloggia con
+                    </th>
+
+                    <th>
+                        Azioni
+                    </th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                <!-- ================================================== -->
+                <!-- RIGHE -->
+                <!-- ================================================== -->
+
+                <tr th:each="ps : ${sistemazioni}">
+
+
+                    <!-- ============================================== -->
+                    <!-- SISTEMAZIONE -->
+                    <!-- ============================================== -->
+
+                    <td th:text="${ps.camera.sistemazione.descrizione}">
+
+                        -
+
+                    </td>
+
+
+                    <!-- ============================================== -->
+                    <!-- CAMERA -->
+                    <!-- ============================================== -->
+
+                    <td th:text="${ps.camera.descrizione}">
+
+                        -
+
+                    </td>
+
+
+                    <!-- ============================================== -->
+                    <!-- ALLOGGIA CON -->
+                    <!-- ============================================== -->
+
+                    <td>
+
+
+                        <!--
+                            Visualizza tutti i partecipanti
+                            della stessa camera tranne quello
+                            della riga corrente.
+                        -->
+
+                        <div th:each="compagno : ${ps.camera.partecipanti}"
+                             th:if="${compagno.id != ps.id}">
+
+
+                            <div th:text="${compagno.partecipante.cognome
+                                          + ' '
+                                          + compagno.partecipante.nome}">
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- Nessun altro partecipante nella camera -->
+
+                        <span th:if="${ps.camera.partecipanti.size() <= 1}"
+                              class="text-muted">
+
+                            Nessun compagno
+
+                        </span>
+
+
+                    </td>
+
+
+                    <!-- ============================================== -->
+                    <!-- AZIONI -->
+                    <!-- ============================================== -->
+
+                    <td style="width: 220px;">
+
+                
+                        <!-- ELIMINA -->
+
+                        <form method="post"
+                              class="d-inline"
+                              th:action="@{/admin/adesioni/{adesioneId}/sistemazioni/{idPartecipanteSistemazione}/elimina(
+                                  adesioneId=${adesione.id},
+                                  idPartecipanteSistemazione=${ps.id}
+                              )}"
+                              onsubmit="return confirm(
+                                  'Vuoi rimuovere definitivamente il partecipante da questa sistemazione?'
+                              );">
+
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger">
+
+                                Elimina
+
+                            </button>
+
+
+                        </form>
+
+
+                    </td>
+
+
+                </tr>
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- TORNA ALL'ADESIONE -->
+    <!-- ====================================================== -->
+
+    <div class="mt-3 mb-4">
+
+        <a class="btn btn-secondary"
+           th:href="@{/admin/adesioni/modifica/{id}(
+                        id=${adesione.id})}">
+
+            ← Torna all'adesione
+
+        </a>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

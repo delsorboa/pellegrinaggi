@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="ISO-8859-1">
+	<title>User Management System</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+		integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+
+<body>
+	<h1 th:text="${nodo}">
+	</h1>
+	<div class="container">
+		<h1>User Management System</h1>
+		<hr>
+		<h2>Save User</h2>
+
+		<form action="#" th:action="@{/saveuser}" th:object="${user}" method="POST">
+			<input type="text" th:field="*{username}" placeholder="User Name" class="form-control mb-4 col-4">
+
+			<input type="password" th:field="*{password}" placeholder="User Password" class="form-control mb-4 col-4">
+
+			<select class="form-control" id="dropDownList" th:field="*{profilo}" >
+				<option value="0">select option</option>
+				<option th:each="profilo : ${profili}" th:value="${profilo.profiloID}" th:text="${profilo.nome}"></option>
+			</select>
+
+			<button type="submit" class="btn btn-info col-2">Save
+				User</button>
+		</form>
+
+		<hr>
+
+		<a th:href="@{/users}"> Back to Users List</a>
+	</div>
+</body>
+
+</html>

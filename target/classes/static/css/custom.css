@@ -1,0 +1,74 @@
+
+
+    /* Colore principale */
+    :root {
+        --bs-primary: #dc3545;
+        --bs-primary-rgb: 220, 53, 69;
+
+        --bs-danger: #b02a37;
+        --bs-danger-rgb: 176, 42, 55;
+
+        --bs-success: #c63d4b;
+        --bs-success-rgb: 198, 61, 75;
+
+        --bs-warning: #a61e2d;
+        --bs-warning-rgb: 166, 30, 45;
+    }
+
+    /* Bottoni primary */
+    .btn-primary {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #b02a37 !important;
+        border-color: #b02a37 !important;
+    }
+
+    /* Bottoni danger */
+    .btn-danger {
+        background-color: #b02a37 !important;
+        border-color: #b02a37 !important;
+        color: white !important;
+    }
+
+    .btn-danger:hover {
+        background-color: #8f1f2a !important;
+        border-color: #8f1f2a !important;
+    }
+
+    /* Bottoni success → rosso chiaro */
+    .btn-success {
+        background-color: #c63d4b !important;
+        border-color: #c63d4b !important;
+        color: white !important;
+    }
+
+    .btn-success:hover {
+        background-color: #a82f3c !important;
+        border-color: #a82f3c !important;
+    }
+
+    /* Bottoni warning → rosso scuro */
+    .btn-warning {
+        background-color: #a61e2d !important;
+        border-color: #a61e2d !important;
+        color: white !important;
+    }
+
+    .btn-warning:hover {
+        background-color: #851723 !important;
+        border-color: #851723 !important;
+    }
+
+    /* Header delle tabelle */
+    .table-dark {
+        background-color: #8f1f2a !important;
+    }
+
+    /* Navbar */
+    .navbar.bg-primary {
+        background-color: #dc3545 !important;
+    }

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Evento</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+
+</head>
+
+
+<body>
+
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}">
+</div>
+
+
+<div class="container mt-5 pt-4">
+
+
+    <h2 th:if="${evento.id == null}">
+        Nuovo Evento
+    </h2>
+
+    <h2 th:unless="${evento.id == null}">
+        Modifica Evento
+    </h2>
+
+
+    <form th:action="@{/admin/pellegrinaggi/{id}/eventi/salva(id=${pellegrinaggio.id})}"
+          th:object="${evento}"
+          method="post">
+
+
+        <input type="hidden"
+               th:field="*{id}">
+
+
+        <!-- TIPO EVENTO -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Tipo evento
+            </label>
+
+
+            <select class="form-select"
+                    th:field="*{tipoEvento.id}"
+                    required>
+
+                <option value="">
+                    -- Seleziona tipo evento --
+                </option>
+
+
+                <option th:each="tipo : ${tipiEvento}"
+                        th:value="${tipo.id}"
+                        th:text="${tipo.descrizione}">
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- DESCRIZIONE -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Descrizione
+            </label>
+
+
+            <textarea class="form-control"
+                      rows="4"
+                      th:field="*{descrizione}">
+            </textarea>
+
+        </div>
+
+
+        <!-- NOTE -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Note
+            </label>
+
+
+            <textarea class="form-control"
+                      rows="4"
+                      th:field="*{note}">
+            </textarea>
+
+        </div>
+
+
+        <!-- ID TABELLA -->
+
+		     <div class="mb-3">
+		
+		    <label class="form-label">
+		        Tabella
+		    </label>
+		
+		    <select class="form-select"
+		            th:field="*{tabella.id}"
+		            required>
+		
+		        <option value="">
+		            -- Seleziona tabella --
+		        </option>
+		
+		        <option th:each="tabella : ${tabelle}"
+		                th:value="${tabella.id}"
+		                th:text="${tabella.descrizione}">
+		        </option>
+		
+		    </select>
+		
+		</div>
+
+
+
+        <!-- PULSANTI -->
+
+        <button type="submit"
+                class="btn btn-success">
+
+            Salva
+
+        </button>
+
+
+        <a class="btn btn-secondary"
+           th:href="@{/admin/pellegrinaggi/{id}/eventi(id=${pellegrinaggio.id})}">
+
+            Annulla
+
+        </a>
+
+
+    </form>
+
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title th:text="${adesione != null
+                      ? 'Modifica adesione'
+                      : 'Nuova adesione'}">
+        Adesione
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+
+</head>
+
+
+<body>
+
+
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}">
+</div>
+
+
+<div class="container mt-5 pt-4">
+
+
+    <div class="card shadow">
+
+
+        <!-- ================================================= -->
+        <!-- TITOLO -->
+        <!-- ================================================= -->
+
+        <div class="card-header bg-primary text-white">
+
+            <h3 th:text="${adesione != null
+                           ? 'Modifica adesione'
+                           : 'Nuova adesione'}">
+
+                Nuova adesione
+
+            </h3>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <form th:action="@{/admin/adesioni/salva}"
+                  method="post">
+
+
+                <!-- ================================================= -->
+                <!-- ID ADESIONE -->
+                <!-- ================================================= -->
+
+                <input type="hidden"
+                       name="id"
+                       th:if="${adesione != null}"
+                       th:value="${adesione.id}">
+
+
+                <!-- ================================================= -->
+                <!-- PARTECIPANTE -->
+                <!-- ================================================= -->
+
+                <div class="mb-3">
+
+                    <label for="partecipanteId"
+                           class="form-label">
+
+                        Partecipante
+
+                    </label>
+
+
+                    <select id="partecipanteId"
+                            class="form-select"
+                            name="partecipanteId"
+                            required>
+
+
+                        <option value="">
+                            Seleziona partecipante
+                        </option>
+
+
+                        <option th:each="p : ${partecipanti}"
+                                th:value="${p.id}"
+                                th:text="${p.nome + ' ' + p.cognome + ' - ' + p.codiceFiscale}"
+                                th:selected="${adesione != null
+                                              and adesione.partecipante != null
+                                              and adesione.partecipante.id == p.id}">
+
+                        </option>
+
+
+                    </select>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- PELLEGRINAGGIO -->
+                <!-- ================================================= -->
+
+                <div class="mb-3">
+
+                    <label for="idPellegrinaggio"
+                           class="form-label">
+
+                        Pellegrinaggio
+
+                    </label>
+
+
+                    <select id="idPellegrinaggio"
+                            name="idPellegrinaggio"
+                            class="form-select"
+                            required>
+
+
+                        <option value="">
+                            -- Seleziona pellegrinaggio --
+                        </option>
+
+
+                        <option th:each="pellegrinaggio : ${pellegrinaggi}"
+
+                                th:value="${pellegrinaggio.id}"
+
+                                th:text="${pellegrinaggio.nome}"
+
+                                th:data-costo="${pellegrinaggio.costo}"
+
+                                th:selected="${adesione != null
+                                              and adesione.pellegrinaggio != null
+                                              and adesione.pellegrinaggio.id
+                                                  == pellegrinaggio.id}">
+
+                        </option>
+
+
+                    </select>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- STATO -->
+                <!-- ================================================= -->
+
+                <div class="mb-3">
+
+                    <label for="stato"
+                           class="form-label">
+
+                        Stato
+
+                    </label>
+
+
+                    <select id="stato"
+                            class="form-select"
+                            name="stato"
+                            required>
+
+
+                        <option value="INSERITA"
+                                th:selected="${adesione == null
+                                              or adesione.stato == 'INSERITA'}">
+
+                            INSERITA
+
+                        </option>
+
+
+                        <option value="CONFERMATA"
+                                th:selected="${adesione != null
+                                              and adesione.stato == 'CONFERMATA'}">
+
+                            CONFERMATA
+
+                        </option>
+
+
+                    </select>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- QUOTA -->
+                <!-- ================================================= -->
+
+                <div class="mb-3">
+
+                    <label for="quota"
+                           class="form-label">
+
+                        Quota totale da versare (€)
+
+                    </label>
+
+
+                    <div class="input-group">
+
+
+                        <input type="number"
+
+                               id="quota"
+
+                               class="form-control"
+
+                               name="quota"
+
+                               min="0"
+
+                               step="0.01"
+
+                               placeholder="0,00"
+
+                               th:value="${adesione != null
+                                          ? adesione.quota
+                                          : ''}">
+
+
+                        <span class="input-group-text">
+                            €
+                        </span>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- PULSANTI -->
+                <!-- ================================================= -->
+
+                <button type="submit"
+                        class="btn btn-success"
+                        th:text="${adesione != null
+                                  ? 'Aggiorna'
+                                  : 'Salva'}">
+
+                    Salva
+
+                </button>
+
+
+                <a class="btn btn-secondary"
+                   th:href="@{/admin/adesioni}">
+
+                    Annulla
+
+                </a>
+
+
+                <!-- ================================================= -->
+                <!-- PULSANTI MODIFICA -->
+                <!-- ================================================= -->
+
+                <div class="mt-3 d-flex flex-wrap gap-2"
+                     th:if="${adesione != null
+                             and adesione.id != null}">
+
+
+                    <a class="btn btn-primary"
+                       th:href="@{/admin/adesioni/{id}/spostamenti(
+                                    id=${adesione.id})}">
+
+                        Spostamenti
+
+                    </a>
+
+
+                    <a class="btn btn-info text-white"
+                       th:href="@{/admin/adesioni/{id}/sistemazioni(
+                                    id=${adesione.id})}">
+
+                        Sistemazione
+
+                    </a>
+
+
+                    <a class="btn btn-warning"
+                       th:href="@{/admin/adesioni/{id}/eventi(
+                                    id=${adesione.id})}">
+
+                        Eventi
+
+                    </a>
+
+
+                </div>
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================================================= -->
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+
+            const selectPellegrinaggio =
+                document.getElementById(
+                    "idPellegrinaggio"
+                );
+
+
+            const inputQuota =
+                document.getElementById(
+                    "quota"
+                );
+
+
+            /*
+             * Controllo di sicurezza
+             */
+            if (
+                !selectPellegrinaggio
+                ||
+                !inputQuota
+            ) {
+
+                console.error(
+                    "Select pellegrinaggio o campo quota non trovato."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * =====================================================
+             * AGGIORNA QUOTA
+             * =====================================================
+             */
+
+            function aggiornaQuota() {
+
+
+                const optionSelezionata =
+                    selectPellegrinaggio.options[
+                        selectPellegrinaggio.selectedIndex
+                    ];
+
+
+                /*
+                 * Nessun pellegrinaggio selezionato
+                 */
+                if (
+                    !optionSelezionata
+                    ||
+                    !selectPellegrinaggio.value
+                ) {
+
+                    inputQuota.value = "";
+
+                    return;
+
+                }
+
+
+                /*
+                 * Recuperiamo il costo dal data-costo
+                 */
+                const costo =
+                    optionSelezionata.getAttribute(
+                        "data-costo"
+                    );
+
+
+                console.log(
+                    "Pellegrinaggio:",
+                    selectPellegrinaggio.value
+                );
+
+
+                console.log(
+                    "Costo:",
+                    costo
+                );
+
+
+                /*
+                 * Impostiamo la quota
+                 */
+                if (
+                    costo !== null
+                    &&
+                    costo !== ""
+                ) {
+
+                    inputQuota.value = costo;
+
+                } else {
+
+                    inputQuota.value = "";
+
+                }
+
+            }
+
+
+            /*
+             * =====================================================
+             * CAMBIO PELLEGRINAGGIO
+             * =====================================================
+             */
+
+            selectPellegrinaggio.addEventListener(
+                "change",
+                aggiornaQuota
+            );
+
+
+            /*
+             * =====================================================
+             * CARICAMENTO PAGINA
+             * =====================================================
+             *
+             * Serve soprattutto in MODIFICA.
+             */
+
+            if (
+                selectPellegrinaggio.value
+            ) {
+
+                aggiornaQuota();
+
+            }
+
+        }
+
+    );
+
+</script>
+
+
+</body>
+
+</html>

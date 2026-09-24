@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="navbar-partecipante">
+
+<nav class="navbar navbar-dark bg-success fixed-top">
+
+<div class="container-fluid">
+
+
+<span class="navbar-brand">
+Area partecipante
+</span>
+
+
+<div class="d-flex gap-2">
+
+
+<a class="btn btn-light btn-sm"
+   th:href="@{/partecipante}">
+   
+Menu principale
+
+</a>
+
+
+<a class="btn btn-warning btn-sm"
+   th:href="@{/partecipante}">
+   
+Le mie adesioni
+
+</a>
+
+
+<form th:action="@{/logout}" method="post">
+
+<button class="btn btn-light btn-sm">
+Logout
+</button>
+
+</form>
+
+
+</div>
+
+
+</div>
+
+</nav>
+
+</div>
+
+</html>

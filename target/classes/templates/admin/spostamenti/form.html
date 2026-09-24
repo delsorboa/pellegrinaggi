@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title th:if="${spostamento.id == null}">
+        Nuovo Spostamento
+    </title>
+
+    <title th:if="${spostamento.id != null}">
+        Modifica Spostamento
+    </title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+
+</head>
+
+
+<body>
+
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}">
+</div>
+
+
+<div class="container mt-5 pt-4">
+
+
+    <!-- Titolo -->
+
+    <h2 th:if="${spostamento.id == null}">
+        Nuovo Spostamento
+    </h2>
+
+    <h2 th:if="${spostamento.id != null}">
+        Modifica Spostamento
+    </h2>
+
+
+    <div class="mb-4">
+
+        <span class="text-muted">
+            Pellegrinaggio:
+        </span>
+
+        <strong th:text="${pellegrinaggio.nome}">
+        </strong>
+
+    </div>
+
+
+    <form th:action="@{/admin/pellegrinaggi/spostamenti/salva}"
+          th:object="${spostamento}"
+          method="post">
+
+
+        <!-- ID spostamento -->
+
+        <input type="hidden"
+               th:field="*{id}">
+
+
+        <!-- Pellegrinaggio -->
+
+        <input type="hidden"
+               th:field="*{pellegrinaggio.id}">
+
+
+        <!-- Tipo mezzo e tipo viaggio -->
+
+        <div class="row">
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Tipo mezzo
+                </label>
+
+                <select class="form-select"
+                        th:field="*{tipMezzo}"
+                        required>
+
+                    <option value="">
+                        -- Seleziona tipo mezzo --
+                    </option>
+
+                    <option th:each="m : ${tipMezzi}"
+                            th:value="${m.id}"
+                            th:text="${m.descrizione}">
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Tipo viaggio
+                </label>
+
+                <select class="form-select"
+                        th:field="*{tipViaggio}"
+                        required>
+
+                    <option value="">
+                        -- Seleziona tipo viaggio --
+                    </option>
+
+                    <option th:each="v : ${tipViaggi}"
+                            th:value="${v.id}"
+                            th:text="${v.descrizione}">
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- Date -->
+
+        <div class="row">
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Data partenza
+                </label>
+
+                <input type="date"
+           class="form-control"
+           name="dataPartenza"
+           th:value="${#temporals.format(spostamento.dataPartenza, 'yyyy-MM-dd')}"
+           required>
+
+            </div>
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Data arrivo
+                </label>
+
+   <input type="date"
+           class="form-control"
+           name="dataArrivo"
+           th:value="${#temporals.format(spostamento.dataArrivo, 'yyyy-MM-dd')}"
+           required>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- Luoghi -->
+
+        <div class="row">
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Luogo partenza
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       th:field="*{luogoPartenza}"
+                       required>
+
+            </div>
+
+
+            <div class="col-md-6 mb-3">
+
+                <label class="form-label">
+                    Luogo arrivo
+                </label>
+
+                <input type="text"
+                       class="form-control"
+                       th:field="*{luogoArrivo}"
+                       required>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- Note -->
+
+        <div class="mb-4">
+
+            <label class="form-label">
+                Note
+            </label>
+
+            <textarea class="form-control"
+                      rows="4"
+                      th:field="*{note}">
+            </textarea>
+
+        </div>
+        
+        <div class="mb-3 mt-4">
+
+		    <a class="btn btn-primary"
+		       th:if="${spostamento.id != null}"
+		       th:href="@{/admin/spostamenti/{id}/responsabili(id=${spostamento.id})}">
+		
+		        Responsabili
+		
+		    </a>
+
+
+
+        <!-- Pulsanti -->
+
+        <button type="submit"
+                class="btn btn-success">
+
+            Salva
+
+        </button>
+
+
+        <a class="btn btn-secondary"
+           th:href="@{/admin/pellegrinaggi/{id}/spostamenti(id=${pellegrinaggio.id})}">
+
+            Annulla
+
+        </a>
+
+
+    </form>
+
+
+</div>
+
+
+</body>
+
+</html>

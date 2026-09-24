@@ -1,0 +1,92 @@
+<nav xmlns:th="http://www.thymeleaf.org"
+     th:fragment="navbar-admin"
+     class="navbar navbar-expand-lg navbar-dark fixed-top"
+     style="background-color: #dc3545;">
+
+    <div class="container-fluid">
+
+         <a class="navbar-brand d-flex align-items-center"
+           th:href="@{/admin}">
+
+            <img th:src="@{/images/scudo.png}"
+                 alt="Scudo"
+                 style="width: 28px; height: 28px; object-fit: contain; margin-right: 8px;">
+
+            <span>Pellegrinaggi</span>
+
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#menuAdmin">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+
+        <div class="collapse navbar-collapse"
+             id="menuAdmin">
+
+            <ul class="navbar-nav me-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin}">
+                        Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/pellegrinaggi}">
+                        Pellegrinaggi
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/partecipanti}">
+                        Partecipanti
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/adesioni}">
+                        Adesioni
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/utenti}">
+                        Utenti
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/admin/report}">
+                        Report
+                    </a>
+                </li>
+
+            </ul>
+
+
+            <form th:action="@{/logout}"
+                  method="post">
+
+                <button class="btn btn-light btn-sm">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</nav>

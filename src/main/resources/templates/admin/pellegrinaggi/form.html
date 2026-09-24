@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+     <title th:if="${pellegrinaggio.id == null}">
+        Nuovo Pellegrinaggio
+    </title>
+
+    <title th:if="${pellegrinaggio.id != null}">
+        Modifica Pellegrinaggio
+    </title>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+
+</head>
+
+
+<body>
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}">
+</div>
+
+
+<div class="container mt-5 pt-4">
+
+
+ <h2 th:if="${pellegrinaggio.id == null}">
+        Nuovo Pellegrinaggio
+    </h2>
+
+    <h2 th:if="${pellegrinaggio.id != null}">
+        Modifica Pellegrinaggio
+    </h2>
+
+
+
+<form th:action="@{/admin/pellegrinaggi/salva}"
+      th:object="${pellegrinaggio}"
+      method="post">
+
+
+<input type="hidden"
+       th:field="*{id}">
+       
+  
+<div class="mb-3">
+
+<label>
+Nome Pellegrinaggio
+</label>
+
+<input class="form-control"
+       th:field="*{nome}"
+       required>
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>
+Destinazione
+</label>
+
+ <select class="form-select"
+            th:field="*{destinazione}"
+            required>
+
+        <option value="">
+            -- Seleziona una destinazione --
+        </option>
+
+        <option th:each="d : ${destinazioni}"
+                th:value="${d.id}"
+                th:text="${d.descrizione}">
+        </option>
+
+    </select>
+
+
+<div class="row">
+
+
+<div class="col">
+
+    <label>
+        Data partenza
+    </label>
+
+    <input type="date"
+           class="form-control"
+           name="dataPartenza"
+           th:value="${#temporals.format(pellegrinaggio.dataPartenza, 'yyyy-MM-dd')}"
+           required>
+
+</div>
+
+
+<div class="col">
+
+    <label>
+        Data ritorno
+    </label>
+
+    <input type="date"
+           class="form-control"
+           name="dataRitorno"
+           th:value="${#temporals.format(pellegrinaggio.dataRitorno, 'yyyy-MM-dd')}"
+           required>
+
+</div>
+
+
+
+</div>
+
+
+
+
+<div class="row mt-3">
+
+
+<div class="col">
+
+<label>
+Costo
+</label>
+
+<input type="number"
+       step="0.01"
+       class="form-control"
+       th:field="*{costo}" required>
+
+</div>
+
+
+
+<div class="col">
+
+<label>
+Posti disponibili
+</label>
+
+<input type="number"
+       class="form-control"
+       th:field="*{postiTotali}"  min="1" required>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="mb-3 mt-3">
+
+<label>
+Descrizione
+</label>
+
+
+<textarea class="form-control"
+          rows="4"
+          th:field="*{descrizione}">
+</textarea>
+
+
+</div>
+
+
+
+<div class="mb-3">
+
+<label>
+Stato
+</label>
+
+
+<select class="form-select"
+        th:field="*{stato}">
+
+
+<option th:each="s : ${T(it.pellegrinaggi.model.StatoPellegrinaggio).values()}"
+        th:value="${s}"
+        th:text="${s}">
+</option>
+
+
+</select>
+
+
+</div>
+
+<div class="row mt-3">
+
+ <div class="col">
+
+    <label>
+        Permanenza Hotel Dal
+    </label>
+
+    <input type="date"
+           class="form-control"
+           name="dataDalSistemazione"
+           th:value="${#temporals.format(pellegrinaggio.dataDalSistemazione, 'yyyy-MM-dd')}"
+           required>
+
+</div>
+
+
+<div class="col">
+
+    <label>
+        Permanenza Hotel Al
+    </label>
+
+    <input type="date"
+           class="form-control"
+           name="dataAlSistemazione"
+           th:value="${#temporals.format(pellegrinaggio.dataAlSistemazione, 'yyyy-MM-dd')}"
+           required>
+
+</div>
+
+</div>
+
+
+<!-- Gestione Pellegrinaggio -->
+<div class="mt-4" th:if="${pellegrinaggio.id != null}">
+
+    <h5>Gestione Pellegrinaggio</h5>
+
+    <div class="d-flex gap-2">
+
+        <a class="btn btn-primary"
+           th:href="@{/admin/pellegrinaggi/{id}/spostamenti(id=${pellegrinaggio.id})}">
+            Spostamenti
+        </a>
+
+        <a class="btn btn-primary"
+           th:href="@{/admin/pellegrinaggi/{id}/sistemazioni(id=${pellegrinaggio.id})}">
+            Sistemazioni
+        </a>
+
+        <a class="btn btn-primary"
+           th:href="@{/admin/pellegrinaggi/{id}/eventi(id=${pellegrinaggio.id})}">
+            Eventi
+        </a>
+
+    </div>
+
+</div>
+
+<br>
+
+<button class="btn btn-success">
+Salva
+</button>
+
+
+<a class="btn btn-secondary"
+   th:href="@{/admin/pellegrinaggi}">
+Annulla
+</a>
+
+
+</form>
+
+
+</div>
+
+
+</body>
+
+</html>

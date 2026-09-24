@@ -1,0 +1,38 @@
+package it.pellegrinaggi.model;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "tip_viaggio")
+public class TipViaggio {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(nullable = false)
+    private String descrizione;
+
+    public TipViaggio() {
+    }
+
+    public TipViaggio(String descrizione) {
+        this.descrizione = descrizione;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getDescrizione() {
+        return descrizione;
+    }
+
+    public void setDescrizione(String descrizione) {
+        this.descrizione = descrizione;
+    }
+}

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Spostamenti</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}">
+</div>
+
+
+<div class="container mt-5 pt-4">
+
+    <!-- ========================================================= -->
+    <!-- INTESTAZIONE -->
+    <!-- ========================================================= -->
+
+    <div class="mb-4">
+
+        <h2>
+            Spostamenti
+        </h2>
+
+        <p class="text-muted mb-0">
+
+            Pellegrinaggio:
+
+            <strong th:text="${adesione.pellegrinaggio.nome}">
+                -
+            </strong>
+
+            <span class="mx-2">|</span>
+
+            Partecipante:
+
+            <strong th:text="${adesione.partecipante.cognome + ' ' + adesione.partecipante.nome}">
+                -
+            </strong>
+
+        </p>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- MESSAGGIO DI SUCCESSO -->
+    <!-- ========================================================= -->
+
+    <div th:if="${success}"
+         class="alert alert-success"
+         th:text="${success}">
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- SPOSTAMENTI DISPONIBILI -->
+    <!-- ========================================================= -->
+
+    <div class="card mb-4">
+
+        <div class="card-header bg-success text-white">
+
+            <strong>
+                Spostamenti disponibili
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <p class="text-muted">
+
+                Questi sono gli spostamenti del pellegrinaggio
+                che non sono ancora associati a questo partecipante.
+
+            </p>
+
+
+            <!-- Nessuno spostamento disponibile -->
+
+            <div th:if="${#lists.isEmpty(spostamentiDisponibili)}"
+                 class="alert alert-secondary mb-0">
+
+                Non ci sono altri spostamenti del pellegrinaggio
+                abbinabili a questo partecipante.
+
+            </div>
+
+
+            <!-- Lista spostamenti disponibili -->
+
+            <div th:unless="${#lists.isEmpty(spostamentiDisponibili)}"
+                 class="table-responsive">
+
+                <table class="table table-striped table-bordered align-middle mb-0">
+
+                    <thead class="table-success">
+
+                    <tr>
+
+                        <th>
+                            Viaggio
+                        </th>
+
+                        <th>
+                            Mezzo
+                        </th>
+
+                        <th>
+                            Partenza
+                        </th>
+
+                        <th>
+                            Arrivo
+                        </th>
+
+                        <th>
+                            Luogo partenza
+                        </th>
+
+                        <th>
+                            Luogo arrivo
+                        </th>
+
+                        <th>
+                            Note
+                        </th>
+
+                        <th style="width: 100px;">
+                            Azione
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="spostamento : ${spostamentiDisponibili}">
+
+                        <td th:text="${spostamento.tipViaggio.descrizione}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.tipMezzo.descrizione}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.dataPartenza}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.dataArrivo}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.luogoPartenza}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.luogoArrivo}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.note}">
+                            -
+                        </td>
+
+                        <td>
+
+                            <form method="post"
+                                  th:action="@{/admin/adesioni/{id}/spostamenti/{idSpostamento}/abbina(
+                                      id=${adesione.id},
+                                      idSpostamento=${spostamento.id}
+                                  )}">
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-success">
+
+                                    Abbina
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- SPOSTAMENTI ASSOCIATI -->
+    <!-- ========================================================= -->
+
+    <div class="card mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <strong>
+                Spostamenti del partecipante
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <!-- Nessuno spostamento associato -->
+
+            <div th:if="${#lists.isEmpty(spostamenti)}"
+                 class="alert alert-info mb-0">
+
+                Nessuno spostamento associato a questa adesione.
+
+            </div>
+
+
+            <!-- Lista spostamenti associati -->
+
+            <div th:unless="${#lists.isEmpty(spostamenti)}"
+                 class="table-responsive">
+
+                <table class="table table-striped table-bordered align-middle mb-0">
+
+                    <thead class="table-dark">
+
+                    <tr>
+
+                        <th>
+                            Viaggio
+                        </th>
+
+                        <th>
+                            Mezzo
+                        </th>
+
+                        <th>
+                            Partenza
+                        </th>
+
+                        <th>
+                            Arrivo
+                        </th>
+
+                        <th>
+                            Luogo partenza
+                        </th>
+
+                        <th>
+                            Luogo arrivo
+                        </th>
+
+                        <th>
+                            Note
+                        </th>
+
+                        <th style="width: 100px;">
+                            Azioni
+                        </th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="spostamento : ${spostamenti}">
+
+                        <td th:text="${spostamento.tipViaggio.descrizione}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.tipMezzo.descrizione}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.dataPartenza}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.dataArrivo}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.luogoPartenza}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.luogoArrivo}">
+                            -
+                        </td>
+
+                        <td th:text="${spostamento.note}">
+                            -
+                        </td>
+
+                        <td>
+
+                            <form method="post"
+                                  th:action="@{/admin/adesioni/{id}/spostamenti/{idSpostamento}/elimina(
+                                      id=${adesione.id},
+                                      idSpostamento=${spostamento.id}
+                                  )}"
+                                  onsubmit="return confirm('Vuoi rimuovere questo spostamento dal partecipante?');">
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger">
+
+                                    Elimina
+
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!-- TORNA INDIETRO -->
+    <!-- ========================================================= -->
+
+    <div class="mt-3 mb-4">
+
+        <a class="btn btn-secondary"
+           th:href="@{/admin/adesioni/modifica/{id}(id=${adesione.id})}">
+
+            ← Torna all'adesione
+
+        </a>
+
+    </div>
+
+
+</div>
+
+</body>
+
+</html>

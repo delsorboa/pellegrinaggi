@@ -1,0 +1,52 @@
+<h1>Partecipanti</h1>
+
+
+<a href="/partecipanti/nuovo"
+class="btn btn-success">
+
+Nuovo partecipante
+
+</a>
+
+
+<table class="table mt-3">
+
+
+<thead>
+
+<tr>
+<th>Nome</th>
+<th>Cognome</th>
+<th>Telefono</th>
+<th></th>
+</tr>
+
+</thead>
+
+
+<tbody>
+
+<tr th:each="p:${lista}">
+
+<td th:text="${p.nome}"></td>
+
+<td th:text="${p.cognome}"></td>
+
+<td th:text="${p.telefono}"></td>
+
+
+<td>
+
+<a class="btn btn-danger btn-sm"
+th:href="@{/partecipanti/elimina/{id}(id=${p.id})}">
+Elimina
+</a>
+
+</td>
+
+
+</tr>
+
+</tbody>
+
+</table>
