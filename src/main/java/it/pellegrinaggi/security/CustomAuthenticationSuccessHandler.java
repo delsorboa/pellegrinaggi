@@ -33,32 +33,42 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
+        // LOG 1: Controlliamo l'URL che il server pensa di avere
+        System.out.println("=== DEBUG PANDASTACK START ===");
+        System.out.println("Request URL: " + request.getRequestURL().toString());
+        System.out.println("Scheme (HTTP/HTTPS): " + request.getScheme());
+        System.out.println("Server Name: " + request.getServerName());
+        System.out.println("Server Port: " + request.getServerPort());
+
+        // LOG 2: Stampiamo tutti gli header inviati da PandaStack
+        System.out.println("--- Richiesta Header Ricevuti ---");
+        java.util.Collections.list(request.getHeaderNames()).forEach(headerName -> {
+            System.out.println(headerName + ": " + request.getHeader(headerName));
+        });
+        System.out.println("=== DEBUG PANDASTACK END ===");
+
         Utente utente = repository.findByUsername(authentication.getName()).orElseThrow();
 
-        // Se la risposta è già stata inviata al client, interrompi
         if (response.isCommitted()) {
             return;
         }
 
-        // 1. Primo accesso: cambio password obbligatorio
         if (Boolean.TRUE.equals(utente.getCambioPasswordObbligatorio())) {
             redirectStrategy.sendRedirect(request, response, "/cambio-password");
             return;
         }
 
-        // 2. Amministratore
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             redirectStrategy.sendRedirect(request, response, "/admin");
             return;
         }
 
-        // 3. Partecipante
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_PARTECIPANTE"))) {
             redirectStrategy.sendRedirect(request, response, "/partecipante");
             return;
         }
 
-        // Fallback di sicurezza
         redirectStrategy.sendRedirect(request, response, "/login");
     }
+
 }
