@@ -55,7 +55,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     private String buildPublicUrl(HttpServletRequest request, String targetPath) {
         try {
-            // Proviamo a leggere l'origine o il referer inviato da PandaStack
             String originHeader = request.getHeader("origin");
             if (originHeader == null || originHeader.isEmpty()) {
                 originHeader = request.getHeader("referer");
@@ -63,19 +62,31 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
             if (originHeader != null && !originHeader.isEmpty()) {
                 URI uri = new URI(originHeader);
-                // Estrae solo lo schema (forzando https) e l'host pubblico (es. xxxx.pandastack.ai)
-                String scheme = "https"; 
                 String host = uri.getHost();
                 
-                // Ricostruisce l'URL finale assoluto e sicuro per l'esterno
-                return scheme + "://" + host + targetPath;
+                // --- PROTEZIONE: VALIDA L'HOST PRIMA DI PROCEDERE ---
+                if (host != null && isAllowedHost(host)) {
+                    String scheme = "https"; 
+                    return scheme + "://" + host + targetPath;
+                } else {
+                    // Log di avviso per potenziale attacco o configurazione errata
+                    System.out.println("Tentativo di redirect non autorizzato verso l'host: " + host);
+                }
             }
         } catch (Exception e) {
-            // Log di fallback in caso di errore di parsing dell'URI
-            System.out.println("Errore nel parsing del dominio pubblico, uso il path relativo: " + e.getMessage());
+            System.out.println("Errore nel parsing del dominio pubblico: " + e.getMessage());
         }
         
-        // Fallback locale se gli header fossero assenti
+        // Fallback sicuro sul path relativo
         return targetPath;
     }
+
+    // Metodo di validazione dell'host
+    private boolean isAllowedHost(String host) {
+        // Sostituisci con il tuo reale dominio o pattern
+        return host.equals("localhost") || 
+               host.equals("I_TUOI_PROVVEDIMENTI.pandastack.ai") || 
+               host.endsWith(".tuodominio.it");
+    }
+
 }
