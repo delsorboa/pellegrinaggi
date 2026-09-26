@@ -64,14 +64,44 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     private String buildPublicUrl(HttpServletRequest request, String targetPath) {
         try {
-            // Sfrutta server.forward-headers-strategy=framework per leggere l'host reale da Cloudflare/PandaStack
-            return ServletUriComponentsBuilder.fromContextPath(request)
-                    .scheme("https") // Forza HTTPS richiesto da PandaStack
-                    .replacePath(targetPath)
-                    .toUriString();
+            // 1. Controlla prima di tutto l'host originale richiesto dal browser (Header standard dei proxy)
+            String host = request.getHeader("X-Forwarded-Host");
+            
+            // 2. Se è assente, prova a leggere l'header Host standard
+            if (host == null || host.isEmpty()) {
+                host = request.getHeader("Host");
+            }
+
+            // PROTECTION CONTRO GLI IP PRIVATI: Se l'host estratto è un IP interno (es. inizia con 10. o 172. o 192.) 
+            // o contiene porte interne (8081, 8080), facciamo fallback sugli header di navigazione sicuri
+            if (host != null && (host.startsWith("10.") || host.startsWith("172.") || host.startsWith("192.") || host.contains(":8081"))) {
+                // Estrae il dominio pubblico dall'Origin o dal Referer inviato dal browser durante il click su "Entra"
+                String originHeader = request.getHeader("origin");
+                if (originHeader == null || originHeader.isEmpty()) {
+                    originHeader = request.getHeader("referer");
+                }
+                if (originHeader != null && !originHeader.isEmpty()) {
+                    java.net.URI uri = new java.net.URI(originHeader);
+                    host = uri.getHost(); // Recupera es. 9a9da55f-bdb7-4744-b7a5-fb5fe7ac63be.db.pandastack.ai
+                }
+            }
+
+            // 3. Se abbiamo un host valido e non è un IP privato, ricostruiamo l'URL pubblico in HTTPS
+            if (host != null && !host.isEmpty() && !host.startsWith("10.")) {
+                // Rimuove eventuali porte residue attaccate all'host
+                if (host.contains(":")) {
+                    host = host.split(":")[0];
+                }
+                
+                String scheme = "https"; // Forza HTTPS per l'esterno su PandaStack
+                return scheme + "://" + host + targetPath;
+            }
         } catch (Exception e) {
-            System.err.println("Errore nella generazione dell'URL pubblico, uso fallback relativo: " + e.getMessage());
-            return targetPath;
+            System.out.println("Errore nella generazione dell'URL pubblico: " + e.getMessage());
         }
+        
+        // Fallback relativo se non riusciamo a calcolare l'URL assoluto
+        return request.getContextPath() + targetPath;
     }
+
 }
