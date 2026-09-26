@@ -54,39 +54,34 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     }
 
     private String buildPublicUrl(HttpServletRequest request, String targetPath) {
-        try {
-            String originHeader = request.getHeader("origin");
-            if (originHeader == null || originHeader.isEmpty()) {
-                originHeader = request.getHeader("referer");
-            }
-
-            if (originHeader != null && !originHeader.isEmpty()) {
-                URI uri = new URI(originHeader);
-                String host = uri.getHost();
-                
-                // --- PROTEZIONE: VALIDA L'HOST PRIMA DI PROCEDERE ---
-                if (host != null && isAllowedHost(host)) {
-                    String scheme = "https"; 
-                    return scheme + "://" + host + targetPath;
-                } else {
-                    // Log di avviso per potenziale attacco o configurazione errata
-                    System.out.println("Tentativo di redirect non autorizzato verso l'host: " + host);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Errore nel parsing del dominio pubblico: " + e.getMessage());
+        // 1. Prendi l'host reale passato dal proxy o richiesto dal browser
+        String host = request.getHeader("X-Forwarded-Host");
+        if (host == null || host.isEmpty()) {
+            host = request.getHeader("Host"); // Es. mia-app.pandastack.ai o localhost:8080
         }
-        
-        // Fallback sicuro sul path relativo
-        return targetPath;
+
+        // 2. Estrai solo la parte dell'host se include la porta (es. localhost:8080 -> localhost)
+        if (host != null && host.contains(":")) {
+            host = host.split(":")[0];
+        }
+
+        // 3. SE l'host è autorizzato, forza HTTPS e ricostruisci l'URL
+        if (host != null && isAllowedHost(host)) {
+            // Se sei in locale su localhost, puoi mantenere HTTP, altrimenti forza HTTPS
+            String scheme = host.equals("localhost") ? "http" : "https";
+            String port = host.equals("localhost") ? ":8080" : ""; // Aggiungi la porta solo per il locale se serve
+            
+            return scheme + "://" + host + port + targetPath;
+        }
+
+        // 4. Fallback sicuro all'URL relativo se l'host non è riconosciuto
+        return targetPath; 
     }
 
-    // Metodo di validazione dell'host
     private boolean isAllowedHost(String host) {
-        // Sostituisci con il tuo reale dominio o pattern
         return host.equals("localhost") || 
-               host.equals("I_TUOI_PROVVEDIMENTI.pandastack.ai") || 
-               host.endsWith(".tuodominio.it");
+               host.endsWith(".pandastack.ai") || 
+               host.endsWith(".tuodominio.it"); // Inserisci i tuoi domini reali
     }
 
 }
