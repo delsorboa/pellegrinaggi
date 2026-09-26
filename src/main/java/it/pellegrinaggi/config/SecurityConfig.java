@@ -46,13 +46,14 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             
-            // DISABILITA LA MEMORIZZAZIONE DEI VECCHI URL INTERNI
+            // DISABILITA LA MEMORIZZAZIONE DEI VECXI URL INTERNI
             // Questo impedisce a Spring Security di reindirizzare l'utente all'URL "salvato" (spesso http://localhost:8080)
             .requestCache(cache -> cache
                     .requestCache(new NullRequestCache())
             )
 
             .authorizeHttpRequests(auth -> auth
+                    // Rotte pubbliche accessibili a tutti senza autenticazione
                     .requestMatchers(
                             "/login",
                             "/registrazione",
@@ -61,20 +62,23 @@ public class SecurityConfig {
                             "/images/**"
                     ).permitAll()
 
-                    .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .requestMatchers("/utente/**").hasAnyRole("ADMIN", "PARTECIPANTE")
-                    .requestMatchers("/partecipante/**").hasRole("PARTECIPANTE")
+                    // REGOLE CORRETTE: Proteggono sia il path base che i sotto-percorsi (evita errori 502/loop)
+                    .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/utente", "/utente/**").hasAnyRole("ADMIN", "PARTECIPANTE")
+                    .requestMatchers("/partecipante", "/partecipante/**").hasRole("PARTECIPANTE")
                     .requestMatchers("/cambio-password").authenticated()
+                    
+                    // Qualsiasi altra richiesta non mappata richiede login generico
                     .anyRequest().authenticated()
             )
 
             .formLogin(login -> login
                     .loginPage("/login")
                     .loginProcessingUrl("/login")
-                    .successHandler(successHandler) // Gestito dalla tua classe custom
+                    .successHandler(successHandler) // Gestito dalla tua classe custom aggiornata
                     .failureUrl("/login?error")
                     .permitAll()
-            )
+                )
 
             .logout(logout -> logout
                     .logoutUrl("/logout")
