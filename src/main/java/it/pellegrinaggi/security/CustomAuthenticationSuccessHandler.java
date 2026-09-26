@@ -2,14 +2,17 @@ package it.pellegrinaggi.security;
 
 import it.pellegrinaggi.model.Utente;
 import it.pellegrinaggi.repository.UtenteRepository;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
 import java.io.IOException;
-import java.util.Optional;
+import java.net.URI;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -26,20 +29,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
+        Utente utente = repository.findByUsername(authentication.getName()).orElseThrow();
+
         if (response.isCommitted()) {
             return;
         }
 
-        // 1. Gestione sicura del recupero utente per evitare NoSuchElementException
-        Optional<Utente> utenteOpt = repository.findByUsername(authentication.getName());
-        if (utenteOpt.isEmpty()) {
-            System.out.println("ERRORE: Utente non trovato nel database dopo l'autenticazione: " + authentication.getName());
-            response.sendRedirect(request.getContextPath() + "/login?error=usernotfound");
-            return;
-        }
-        Utente utente = utenteOpt.get();
-
-        // 2. Determina il percorso relativo di destinazione
+        // Determina il percorso relativo di destinazione
         String targetPath = "/login";
 
         if (Boolean.TRUE.equals(utente.getCambioPasswordObbligatorio())) {
@@ -50,51 +46,36 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             targetPath = "/partecipante";
         }
 
-        // 3. RICOSTRUZIONE URL PUBBLICO IN MODO ROBUSTO (Evita crash totali)
+        // RICOSTRUZIONE URL PUBBLICO PANDASTACK
         String publicRedirectUrl = buildPublicUrl(request, targetPath);
 
-        // 4. Esegue il redirect
+        // Esegue il redirect forzato sull'URL esterno accessibile
         response.sendRedirect(publicRedirectUrl);
     }
 
     private String buildPublicUrl(HttpServletRequest request, String targetPath) {
         try {
-            // Estrae l'host reale inoltrato da PandaStack/Cloudflare o dall'header standard
-            String host = request.getHeader("X-Forwarded-Host");
-            if (host == null || host.isEmpty()) {
-                host = request.getHeader("Host");
+            // Proviamo a leggere l'origine o il referer inviato da PandaStack
+            String originHeader = request.getHeader("origin");
+            if (originHeader == null || originHeader.isEmpty()) {
+                originHeader = request.getHeader("referer");
             }
 
-            if (host != null && !host.isEmpty()) {
-                // Rimuove la porta in modo sicuro senza rompere il tipo String
-                if (host.contains(":")) {
-                    host = host.split(":")[0];
-                }
-
-                // Whitelist per verificare che l'host appartenga alla tua infrastruttura
-                if (isAllowedHost(host)) {
-                    // Gestione flessibile dello schema: mantiene http solo su localhost per i test
-                    String scheme = host.equals("localhost") ? "http" : "https";
-                    String portSuffix = host.equals("localhost") ? ":8080" : "";
-                    
-                    return scheme + "://" + host + portSuffix + targetPath;
-                } else {
-                    System.out.println("ATTENZIONE: Rilevato Host non autorizzato nella richiesta: " + host);
-                }
+            if (originHeader != null && !originHeader.isEmpty()) {
+                URI uri = new URI(originHeader);
+                // Estrae solo lo schema (forzando https) e l'host pubblico (es. xxxx.pandastack.ai)
+                String scheme = "https"; 
+                String host = uri.getHost();
+                
+                // Ricostruisce l'URL finale assoluto e sicuro per l'esterno
+                return scheme + "://" + host + targetPath;
             }
         } catch (Exception e) {
-            System.out.println("Eccezione durante la build dell'URL: " + e.getMessage());
+            // Log di fallback in caso di errore di parsing dell'URI
+            System.out.println("Errore nel parsing del dominio pubblico, uso il path relativo: " + e.getMessage());
         }
         
-        // Fallback assoluto e resiliente: se tutto fallisce, restituisce il percorso relativo
-        // Evita che l'applicazione restituisca stringhe vuote o vada in crash
-        return request.getContextPath() + targetPath;
-    }
-
-    private boolean isAllowedHost(String host) {
-        if (host == null) return false;
-        return host.equals("localhost") || 
-               host.endsWith(".pandastack.ai") || 
-               host.endsWith(".pellegrinaggi.it"); // Inserisci qui l'eventuale dominio di produzione definitivo
+        // Fallback locale se gli header fossero assenti
+        return targetPath;
     }
 }
