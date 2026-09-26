@@ -89,6 +89,7 @@ it\pellegrinaggi\model\StatoAdesione.class
 it\pellegrinaggi\model\ResponsabileSpostamentoReport.class
 it\pellegrinaggi\model\PartecipanteEventoView.class
 it\pellegrinaggi\repository\DestinazioneRepository.class
+it\pellegrinaggi\config\GeneratorePassword.class
 it\pellegrinaggi\controller\UtenteController.class
 it\pellegrinaggi\repository\PartecipanteSpostamentoRepository.class
 it\pellegrinaggi\security\CustomAuthenticationSuccessHandler.class
