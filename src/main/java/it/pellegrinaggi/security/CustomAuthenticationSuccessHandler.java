@@ -2,17 +2,14 @@ package it.pellegrinaggi.security;
 
 import it.pellegrinaggi.model.Utente;
 import it.pellegrinaggi.repository.UtenteRepository;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
 import java.io.IOException;
-import java.net.URI;
+import java.util.Optional;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -29,13 +26,20 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        Utente utente = repository.findByUsername(authentication.getName()).orElseThrow();
-
         if (response.isCommitted()) {
             return;
         }
 
-        // Determina il percorso relativo di destinazione
+        // 1. Gestione sicura del recupero utente per evitare NoSuchElementException
+        Optional<Utente> utenteOpt = repository.findByUsername(authentication.getName());
+        if (utenteOpt.isEmpty()) {
+            System.out.println("ERRORE: Utente non trovato nel database dopo l'autenticazione: " + authentication.getName());
+            response.sendRedirect(request.getContextPath() + "/login?error=usernotfound");
+            return;
+        }
+        Utente utente = utenteOpt.get();
+
+        // 2. Determina il percorso relativo di destinazione
         String targetPath = "/login";
 
         if (Boolean.TRUE.equals(utente.getCambioPasswordObbligatorio())) {
@@ -46,42 +50,51 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             targetPath = "/partecipante";
         }
 
-        // RICOSTRUZIONE URL PUBBLICO PANDASTACK
+        // 3. RICOSTRUZIONE URL PUBBLICO IN MODO ROBUSTO (Evita crash totali)
         String publicRedirectUrl = buildPublicUrl(request, targetPath);
 
-        // Esegue il redirect forzato sull'URL esterno accessibile
+        // 4. Esegue il redirect
         response.sendRedirect(publicRedirectUrl);
     }
 
     private String buildPublicUrl(HttpServletRequest request, String targetPath) {
-        // 1. Prendi l'host reale passato dal proxy o richiesto dal browser
-        String host = request.getHeader("X-Forwarded-Host");
-        if (host == null || host.isEmpty()) {
-            host = request.getHeader("Host"); // Es. mia-app.pandastack.ai o localhost:8080
-        }
+        try {
+            // Estrae l'host reale inoltrato da PandaStack/Cloudflare o dall'header standard
+            String host = request.getHeader("X-Forwarded-Host");
+            if (host == null || host.isEmpty()) {
+                host = request.getHeader("Host");
+            }
 
-        // 2. Estrai solo la parte dell'host se include la porta (es. localhost:8080 -> localhost)
-        if (host != null && host.contains(":")) {
-            host = host.split(":")[0];
-        }
+            if (host != null && !host.isEmpty()) {
+                // Rimuove la porta in modo sicuro senza rompere il tipo String
+                if (host.contains(":")) {
+                    host = host.split(":")[0];
+                }
 
-        // 3. SE l'host è autorizzato, forza HTTPS e ricostruisci l'URL
-        if (host != null && isAllowedHost(host)) {
-            // Se sei in locale su localhost, puoi mantenere HTTP, altrimenti forza HTTPS
-            String scheme = host.equals("localhost") ? "http" : "https";
-            String port = host.equals("localhost") ? ":8080" : ""; // Aggiungi la porta solo per il locale se serve
-            
-            return scheme + "://" + host + port + targetPath;
+                // Whitelist per verificare che l'host appartenga alla tua infrastruttura
+                if (isAllowedHost(host)) {
+                    // Gestione flessibile dello schema: mantiene http solo su localhost per i test
+                    String scheme = host.equals("localhost") ? "http" : "https";
+                    String portSuffix = host.equals("localhost") ? ":8080" : "";
+                    
+                    return scheme + "://" + host + portSuffix + targetPath;
+                } else {
+                    System.out.println("ATTENZIONE: Rilevato Host non autorizzato nella richiesta: " + host);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Eccezione durante la build dell'URL: " + e.getMessage());
         }
-
-        // 4. Fallback sicuro all'URL relativo se l'host non è riconosciuto
-        return targetPath; 
+        
+        // Fallback assoluto e resiliente: se tutto fallisce, restituisce il percorso relativo
+        // Evita che l'applicazione restituisca stringhe vuote o vada in crash
+        return request.getContextPath() + targetPath;
     }
 
     private boolean isAllowedHost(String host) {
+        if (host == null) return false;
         return host.equals("localhost") || 
                host.endsWith(".pandastack.ai") || 
-               host.endsWith(".tuodominio.it"); // Inserisci i tuoi domini reali
+               host.endsWith(".pellegrinaggi.it"); // Inserisci qui l'eventuale dominio di produzione definitivo
     }
-
 }
