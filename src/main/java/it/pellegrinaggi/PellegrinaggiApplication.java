@@ -30,5 +30,6 @@ public class PellegrinaggiApplication {
         System.out.println("JPA Database Platform: " + env.getProperty("spring.jpa.database-platform"));
         System.out.println("Hibernate Dialect: " + env.getProperty("spring.jpa.properties.hibernate.dialect"));
         System.out.println("=========================================================");
+        System.setProperty("net.sf.jasperreports.compiler.class", "net.sf.jasperreports.engine.design.JRJdtCompiler");
     }
 }
