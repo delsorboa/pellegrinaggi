@@ -84,12 +84,25 @@ public class PartecipanteController {
 
 
 
+        // 2. Estrae gli ID dei pellegrinaggi a cui il partecipante ha già aderito
+        java.util.Set<Integer> idPellegrinaggiIscritto =   adesioneRepository
+                .findByPartecipante(
+                		utente.getPartecipante()
+                ).stream()
+                .filter(a -> a.getPellegrinaggio() != null)
+                .map(a -> a.getPellegrinaggio().getId())
+                .collect(java.util.stream.Collectors.toSet());
+
+        // 3. Recupera i pellegrinaggi aperti e filtra escludendo quelli a cui è già iscritto
+        java.util.List<Pellegrinaggio> pellegrinaggiDisponibili = 
+                pellegrinaggioRepository.findByStato(StatoPellegrinaggio.APERTO)
+                .stream()
+                .filter(p -> !idPellegrinaggiIscritto.contains(p.getId()))
+                .collect(java.util.stream.Collectors.toList());
+
         model.addAttribute(
                 "pellegrinaggi",
-                pellegrinaggioRepository
-                .findByStato(
-                    StatoPellegrinaggio.APERTO
-                )
+                pellegrinaggiDisponibili
         );
 
 
@@ -97,8 +110,8 @@ public class PartecipanteController {
         model.addAttribute(
                 "adesioni",
                 adesioneRepository
-                .findByUtenteId(
-                    utente.getId()
+                .findByPartecipante(
+                		utente.getPartecipante()
                 )
         );
 
@@ -179,6 +192,35 @@ public class PartecipanteController {
         );
 
 
+        return "redirect:/partecipante";
+    }
+    
+    @PostMapping("/salva")
+    public String salvaAdesioneDiretta(
+            @RequestParam("pellegrinaggioId") Integer pellegrinaggioId,
+            Authentication authentication) {
+
+        // 1. Recupera l'utente correntemente loggato a sistema
+        Utente utente = utenteService.getUtenteLoggato(authentication);
+        
+        // 2. Recupera l'anagrafica partecipante associata all'account utente
+        Partecipante partecipante = utente.getPartecipante();
+        
+        if (partecipante == null) {
+            throw new RuntimeException("L'utente loggato non è collegato ad alcuna anagrafica partecipante.");
+        }
+
+        // 3. Cerca il pellegrinaggio selezionato
+        Pellegrinaggio pellegrinaggio = pellegrinaggioRepository.findById(pellegrinaggioId).orElseThrow();
+
+        // 4. Registra l'iscrizione sul database tramite il Service dedicato
+        adesioneService.iscrivi(
+            partecipante,
+            pellegrinaggio,
+            utente
+        );
+
+        // 5. Ridirige in sicurezza alla dashboard principale, scongiurando l'errore di template mancante
         return "redirect:/partecipante";
     }
 

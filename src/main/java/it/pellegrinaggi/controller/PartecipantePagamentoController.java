@@ -58,20 +58,6 @@ public class PartecipantePagamentoController {
 
 
 
-        if(
-            !adesione.getUtente()
-            .getId()
-            .equals(utente.getId())
-        ){
-
-            throw new RuntimeException(
-                    "Non puoi visualizzare questa adesione"
-            );
-
-        }
-
-
-
         model.addAttribute(
                 "adesione",
                 adesione
@@ -105,20 +91,6 @@ public class PartecipantePagamentoController {
                 adesioneRepository
                 .findById(adesioneId)
                 .orElseThrow();
-
-
-
-        if(!adesione.getUtente()
-                .getId()
-                .equals(utente.getId())){
-
-            throw new RuntimeException(
-                    "Non puoi inserire pagamenti per questa adesione"
-            );
-
-        }
-
-
 
         Pagamento pagamento =
                 new Pagamento();
@@ -162,18 +134,6 @@ public class PartecipantePagamentoController {
                     pagamento.getAdesione().getId()
                 )
                 .orElseThrow();
-
-
-        if(!adesione.getUtente()
-                .getId()
-                .equals(utente.getId())){
-
-            throw new RuntimeException(
-                    "Operazione non consentita"
-            );
-
-        }
-
 
         pagamento.setStatoPagamento(
                 "INSERITO"

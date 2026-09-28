@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${utente.id != null ? 'Modifica Utente' : 'Nuovo Utente'}">Utente</title>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+          
+    <link rel="stylesheet"
+      th:href="@{/css/custom.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar-admin :: navbar-admin}"></div>
+
+<div class="container mt-5 pt-4">
+    <div class="card shadow" style="max-width: 600px; margin: 0 auto;">
+        
+        <!-- TITOLO SCHEDA -->
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0" th:text="${utente.id != null ? 'Modifica Utente' : 'Nuovo Utente'}">Nuovo Utente</h3>
+        </div>
+
+        <div class="card-body">
+            <!-- Cambia l'action se il tuo endpoint di salvataggio ha un percorso diverso -->
+            <form th:action="@{/admin/utenti/salva}" th:object="${utente}" method="post">
+                
+                <!-- ID NASCOSTO (per la modifica) -->
+                <input type="hidden" th:field="*{id}">
+
+                <!-- COMBO PARTECIPANTI -->
+                <div class="mb-3">
+                    <label for="partecipanteId" class="form-label fw-bold">Partecipante</label>
+                    <select id="partecipanteId" name="partecipanteId" class="form-select" required>
+                        <option value="">-- Seleziona Partecipante --</option>
+                        <option th:each="p : ${partecipanti}" 
+                                th:value="${p.id}" 
+                                th:text="${p.nome + ' ' + p.cognome}"
+                                th:selected="${utente.partecipante != null and utente.partecipante.id == p.id}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- COMBO RUOLO -->
+               <!-- COMBO RUOLO (Aggiornato per l'Enum) -->
+				<div class="mb-3">
+				    <label for="ruolo" class="form-label fw-bold">Ruolo</label>
+				    <select id="ruolo" name="ruolo" class="form-select" required>
+				        <option value="">-- Seleziona Ruolo --</option>
+				        <option th:each="r : ${ruoli}" 
+				                th:value="${r}" 
+				                th:text="${r}"
+				                th:selected="${utente.ruolo != null and utente.ruolo == r}">
+				        </option>
+				    </select>
+				</div>
+
+
+                <!-- CAMPO USERNAME -->
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-bold">Username</label>
+                    <input type="text" id="username" th:field="*{username}" class="form-select-sm form-control" required placeholder="Inserisci lo username">
+                </div>
+
+                <!-- CAMPO PASSWORD -->
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold">Password</label>
+                    <!-- th:required rende la password obbligatoria solo per i NUOVI utenti -->
+                    <input type="password" id="password" th:field="*{password}" class="form-control" 
+                           th:required="${utente.id == null}" 
+                           placeholder="Inserisci la password">
+                    <div class="form-text" th:if="${utente.id != null}">Lascia vuoto se non desideri modificare la password attuale.</div>
+                </div>
+
+                <!-- PULSANTI AZIONE -->
+                <div class="d-flex justify-content-between pt-3">
+                    <a th:href="@{/admin/utenti}" class="btn btn-secondary">Annulla</a>
+                    <button type="submit" class="btn btn-success">Salva Utente</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
