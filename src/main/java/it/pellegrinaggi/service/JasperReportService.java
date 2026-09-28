@@ -1556,28 +1556,30 @@ public class JasperReportService {
 
 
         /*
+            /*
          * ========================================================
-         * CARICA REPORT
+         * CARICA REPORT (.JASPER PRE-COMPILATO)
          * ========================================================
+         * Sostituito .jrxml con .jasper per evitare la compilazione a runtime nel Cloud
          */
 
         ClassPathResource reportResource =
                 new ClassPathResource(
-                        "reports/foglio_servizio.jrxml"
+                        "reports/foglio_servizio.jasper"
                 );
 
 
         if (!reportResource.exists()) {
 
             throw new IllegalArgumentException(
-                    "Report foglio_servizio.jrxml non trovato"
+                    "Report foglio_servizio.jasper non trovato nelle risorse"
             );
         }
 
 
         /*
          * ========================================================
-         * COMPILA JRXML
+         * CARICAMENTO DIRETTO DELL'OGGETTO
          * ========================================================
          */
 
@@ -1589,11 +1591,8 @@ public class JasperReportService {
                         reportResource.getInputStream()
         ) {
 
-            jasperReport =
-                    JasperCompileManager
-                            .compileReport(
-                                    reportInputStream
-                            );
+            // Carica l'oggetto pre-compilato senza invocare il compilatore Java (javac)
+            jasperReport = (JasperReport) net.sf.jasperreports.engine.util.JRLoader.loadObject(reportInputStream);
         }
 
 
@@ -1623,15 +1622,9 @@ public class JasperReportService {
 
         /*
          * ========================================================
-         * ESPORTA PDF
+         * ESPORTA EXCEL (XLSX)
          * ========================================================
          */
-
-//        return JasperExportManager
-//                .exportReportToPdf(
-//                        jasperPrint
-//                );
-        
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -1658,8 +1651,10 @@ public class JasperReportService {
         exporter.exportReport();
 
         return outputStream.toByteArray();
-
     }
+
+
+    
     
     
     private String recuperaNominativiRuolo(
