@@ -40,24 +40,12 @@ public class AdminAdesioneController {
     }
 
 
-    // =========================================================
-    // LISTA
-    // =========================================================
-
     @GetMapping
     public String lista(
-            @RequestParam(required = false)
-            Integer idPellegrinaggio,
-
-            @RequestParam(required = false)
-            String nome,
-
-            @RequestParam(defaultValue = "0")
-            int page,
-
-            @RequestParam(defaultValue = "10")
-            int size,
-
+            @RequestParam(required = false) Integer idPellegrinaggio,
+            @RequestParam(required = false) String nome,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
         /*
@@ -81,7 +69,6 @@ public class AdminAdesioneController {
                 )
         );
 
-
         /*
          * =====================================================
          * FILTRO
@@ -91,69 +78,53 @@ public class AdminAdesioneController {
             nome = nome.trim();
         }
 
+        /*
+         * =====================================================
+         * ADESIONI (Ricerca Paginata)
+         * =====================================================
+         */
+        Page<Adesione> paginaAdesioni = adesioneRepository.cerca(
+                idPellegrinaggio,
+                nome,
+                pageable
+        );
 
         /*
          * =====================================================
-         * ADESIONI
+         * PELLEGRINAGGI (Per la combo di filtraggio)
          * =====================================================
-         *
-         * ATTENZIONE:
-         * qui deve essere Page<Adesione>, NON List<Adesione>
          */
-        Page<Adesione> adesioni =
-                adesioneRepository.cerca(
-                        idPellegrinaggio,
-                        nome,
-                        pageable
-                );
-
+        List<Pellegrinaggio> pellegrinaggi = pellegrinaggioRepository.findAll();
 
         /*
          * =====================================================
-         * PELLEGRINAGGI
+         * MODEL (Allineato con i parametri dell'HTML)
          * =====================================================
          */
-        List<Pellegrinaggio> pellegrinaggi =
-                pellegrinaggioRepository.findAll();
+        // Passiamo solo la lista scompattata degli elementi della pagina corrente
+        model.addAttribute("adesioni", paginaAdesioni.getContent());
+        
+        // Contatori necessari alla barra di paginazione Bootstrap
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", paginaAdesioni.getTotalPages());
+        model.addAttribute("totalItems", paginaAdesioni.getTotalElements());
 
+        // Dati per la persistenza dei filtri nel form di ricerca
+        model.addAttribute("pellegrinaggi", pellegrinaggi);
+        model.addAttribute("idPellegrinaggio", idPellegrinaggio);
+        model.addAttribute("nome", nome);
 
-        /*
-         * =====================================================
-         * MODEL
-         * =====================================================
-         */
-        model.addAttribute(
-                "adesioni",
-                adesioni
-        );
-
-        model.addAttribute(
-                "pellegrinaggi",
-                pellegrinaggi
-        );
-
-        model.addAttribute(
-                "idPellegrinaggio",
-                idPellegrinaggio
-        );
-
-        model.addAttribute(
-                "nome",
-                nome
-        );
-
-
+        // Ritorna la vista coerente con il nome del file modificato
         return "admin/adesioni/lista";
     }
-
-
 
     @GetMapping("/nuova")
     public String nuova(Model model) {
     	
-    	model.addAttribute(
+        // Corretto da null a istanza vuota per evitare eccezioni nel binding th:object del form
+        model.addAttribute(
                 "adesione",
-                null
+                new Adesione()
         );
 
         model.addAttribute(
@@ -170,6 +141,7 @@ public class AdminAdesioneController {
 
         return "admin/adesioni/form";
     }
+
 
 
     @GetMapping("/modifica/{id}")

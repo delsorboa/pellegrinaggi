@@ -1,6 +1,12 @@
 package it.pellegrinaggi.controller;
 
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,16 +52,60 @@ public class AdminPartecipanteController {
 
 
     @GetMapping
-    public String elenco(Model model){
+    public String listaPartecipanti(
+            @RequestParam(name = "nome", required = false) String nome,
+            @RequestParam(name = "cognome", required = false) String cognome,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+        
+        // Evita pagine negative
+        if (page < 0) {
+            page = 0;
+        }
 
-        model.addAttribute(
-                "partecipanti",
-                repository.findAll()
+        // Configurazione della paginazione e ordinamento alfabetico per Cognome e Nome
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(
+                        Sort.Order.asc("cognome"),
+                        Sort.Order.asc("nome")
+                )
         );
 
+        // Usiamo un'unica variabile di tipo Page per gestire la paginazione in tutti i casi
+        Page<Partecipante> paginaPartecipanti;
+
+        // Se entrambi i filtri sono valorizzati
+        if (nome != null && !nome.isBlank() && cognome != null && !cognome.isBlank()) {
+            paginaPartecipanti = repository.findByNomeContainingIgnoreCaseAndCognomeContainingIgnoreCase(nome, cognome, pageable);
+        } 
+        // Se è presente solo il filtro Nome
+        else if (nome != null && !nome.isBlank()) {
+            paginaPartecipanti = repository.findByNomeContainingIgnoreCase(nome, pageable);
+        } 
+        // Se è presente solo il filtro Cognome
+        else if (cognome != null && !cognome.isBlank()) {
+            paginaPartecipanti = repository.findByCognomeContainingIgnoreCase(cognome, pageable);
+        } 
+        // Se non ci sono filtri, mostra l'elenco completo paginato
+        else {
+            paginaPartecipanti = repository.findAll(pageable);
+        }
+
+        // Passiamo alla tabella HTML solo il contenuto della pagina corrente (List<Partecipante>)
+        model.addAttribute("partecipanti", paginaPartecipanti.getContent());
+        
+        // Dati aggiuntivi fondamentali per gestire i bottoni della paginazione nell'HTML
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", paginaPartecipanti.getTotalPages());
+        model.addAttribute("totalItems", paginaPartecipanti.getTotalElements());
 
         return "admin/partecipanti/elenco";
     }
+
+
 
 
 

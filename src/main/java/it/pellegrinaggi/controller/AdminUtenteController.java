@@ -11,6 +11,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -33,19 +37,54 @@ public class AdminUtenteController {
 	    }
 
 
-    @GetMapping
-    public String elenco(Model model){
+	    @GetMapping
+	    public String elenco(
+	            @RequestParam(name = "username", required = false) String username,
+	            @RequestParam(defaultValue = "0") int page,
+	            @RequestParam(defaultValue = "10") int size,
+	            Model model) {
+
+	        // Evita pagine negative
+	        if (page < 0) {
+	            page = 0;
+	        }
+
+	     // Configurazione della paginazione ordinata per il Partecipante collegato
+	        Pageable pageable = PageRequest.of(
+	                page,
+	                size,
+	                Sort.by(
+	                        Sort.Order.asc("partecipante.cognome"),
+	                        Sort.Order.asc("partecipante.nome")
+	                )
+	        );
 
 
-        model.addAttribute(
-                "utenti",
-                repository.findAll()
-        );
+	        Page<Utente> paginaUtenti;
 
+	        // Se il filtro dello username è valorizzato, effettua la ricerca parziale
+	        if (username != null && !username.isBlank()) {
+	            paginaUtenti = repository.findByUsernameContainingIgnoreCase(username.trim(), pageable);
+	        } 
+	        // Altrimenti estrae l'elenco completo paginato
+	        else {
+	            paginaUtenti = repository.findAll(pageable);
+	        }
 
-        return "admin/utenti/elenco";
+	        // Passiamo alla tabella HTML solo la lista scompattata degli elementi della pagina corrente
+	        model.addAttribute("utenti", paginaUtenti.getContent());
+	        
+	        // Parametri fondamentali per far funzionare i bottoni della paginazione nell'HTML
+	        model.addAttribute("currentPage", page);
+	        model.addAttribute("totalPages", paginaUtenti.getTotalPages());
+	        model.addAttribute("totalItems", paginaUtenti.getTotalElements());
 
-    }
+	        // Mantiene lo username digitato all'interno del campo di testo dell'HTML
+	        model.addAttribute("username", username);
+
+	        return "admin/utenti/elenco";
+	    }
+
 
 
 
@@ -187,6 +226,24 @@ public class AdminUtenteController {
                 model.addAttribute("partecipanti", partecipanteRepository.findAll());
                 model.addAttribute("ruoli", Ruolo.values());
                 model.addAttribute("errore", "A questo partecipante è già stata assegnata un'utenza!");
+                
+                return "admin/utenti/form";
+            }
+        }
+        
+        // 1.B VERIFICA SE LO USERNAME È GIÀ IN USO DA UN ALTRO UTENTE
+        Optional<Utente> utenteConStessoUsername = repository.findByUsername(utente.getUsername());
+
+        if (utenteConStessoUsername.isPresent()) {
+            Utente trovatoUsername = utenteConStessoUsername.get();
+
+            // Se stiamo creando un nuovo utente, o se l'utente trovato ha un ID diverso da quello corrente
+            if (utente.getId() == null || !trovatoUsername.getId().equals(utente.getId())) {
+                
+                model.addAttribute("utente", utente);
+                model.addAttribute("partecipanti", partecipanteRepository.findAll());
+                model.addAttribute("ruoli", Ruolo.values());
+                model.addAttribute("errore", "Questo username è già in uso! Scegline un altro.");
                 
                 return "admin/utenti/form";
             }

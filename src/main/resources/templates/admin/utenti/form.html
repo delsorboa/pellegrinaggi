@@ -23,6 +23,13 @@
         </div>
 
         <div class="card-body">
+        
+             <!-- MESSAGGIO DI ERRORE DI THYMELEAF (Aggiunto qui) -->
+            <div th:if="${errore}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong th:text="${errore}">Messaggio di errore</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            
             <!-- Cambia l'action se il tuo endpoint di salvataggio ha un percorso diverso -->
             <form th:action="@{/admin/utenti/salva}" th:object="${utente}" method="post">
                 
