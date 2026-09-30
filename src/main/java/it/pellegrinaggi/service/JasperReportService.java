@@ -926,11 +926,9 @@ public class JasperReportService {
              */
 
             if (
-                    evento.getTipoEvento() == null
+                    evento.getDescrizione() == null
                     ||
-                    evento.getTipoEvento().getId() == null
-                    ||
-                    !evento.getTipoEvento().getId().equals(1)
+                    evento.getDescrizione().toLowerCase().indexOf("servizio") == -1
             ) {
                 continue;
             }
@@ -1067,264 +1065,198 @@ public class JasperReportService {
              * ACCOMPAGNA / CON
              * ====================================================
              *
-             * SOLO per:
-             *
-             * descrizione = "Servizio in Aeroporto"
-             *
-             * id_tabella = 1
-             *
-             * La presenza del record in partecipante_evento
-             * rappresenta il SI.
+             * EVENTI FIGLI COLLEGATI AD EVENTO PADRE DEL PARTECIPANTE
+
              */
-
-            String accompagna = "";
-            String con = "";
-
-
-            boolean servizioInAeroporto =
-                    "Servizio in Aeroporto".equalsIgnoreCase(
-                            evento.getDescrizione() == null
-                                    ? ""
-                                    : evento.getDescrizione().trim()
-                    )
-                    &&
-                    Integer.valueOf(1).equals(idTabella);
-
-
-            if (servizioInAeroporto) {
-
-
-                /*
-                 * ====================================================
-                 * EVENTI TIPO 3 DEL PARTECIPANTE
-                 * ====================================================
-                 */
-
-                List<PartecipanteEvento> eventiAccompagno =
-                        eventiPartecipante
-                                .stream()
-                                .filter(
-                                        pe -> pe.getEvento() != null
-                                )
-                                .filter(
-                                        pe ->
-                                                pe.getEvento()
-                                                        .getTipoEvento() != null
-                                )
-                                .filter(
-                                        pe ->
-                                                pe.getEvento()
-                                                        .getTipoEvento()
-                                                        .getId() != null
-                                )
-                                .filter(
-                                        pe ->
-                                                pe.getEvento()
-                                                        .getTipoEvento()
-                                                        .getId()
-                                                        .equals(3)
-                                )
-                                .filter(
-                                        pe ->
-                                                pe.getEvento()
-                                                        .getIdPellegrinaggio() != null
-                                                &&
-                                                pe.getEvento()
-                                                        .getIdPellegrinaggio()
-                                                        .equals(
-                                                                idPellegrinaggio
-                                                        )
-                                )
-                                .filter(
-                                        pe ->
-                                                pe.getIdPartecipante() != null
-                                                &&
-                                                pe.getIdPartecipante()
-                                                        .equals(idPartecipante)
-                                )
-                                .toList();
-
-
+                                                     
+                List<PartecipanteEvento> eventiFigli = partecipanteEventoRepository.findFigliByIdPadreEPartecipante(partecipanteEvento.getEvento().getId(),idPartecipante,idPellegrinaggio);
+                
+                
+                String accompagna = "";
+                
+                String con = "";
+                
+               
                 List<String> listaAccompagna =
                         new ArrayList<>();
 
 
                 List<String> listaCon =
                         new ArrayList<>();
-
-
-                /*
-                 * ====================================================
-                 * COSTRUZIONE ACCOMPAGNA / CON
-                 * ====================================================
-                 */
-
-                for (PartecipanteEvento peTipo3
-                        : eventiAccompagno) {
-
-
-                    Eventi eventoTipo3 =
-                            peTipo3.getEvento();
-
-
-                    if (eventoTipo3 == null) {
-                        continue;
-                    }
-
-
-                    String descrizioneTipo3 =
-                            eventoTipo3.getDescrizione() == null
-                                    ? ""
-                                    : eventoTipo3
-                                            .getDescrizione()
-                                            .trim();
-
-
+                
+                for (PartecipanteEvento eventoFiglio : eventiFigli) {
+                	
+                    // Logica nel caso ci siano figli associati
+                	
                     /*
                      * ====================================================
-                     * ACCOMPAGNA
+                     * EVENTI FIGLI COLLEGATI AD EVENTO PADRE DEL PARTECIPANTE
                      * ====================================================
-                     *
-                     * Deve esistere realmente una riga
-                     * partecipante_evento.
-                     *
-                     * id_valore_tabella =
-                     * partecipante accompagnato.
                      */
-
-                    if (
-                            "ACCOMPAGNA".equalsIgnoreCase(
-                                    descrizioneTipo3
-                            )
-                    ) {
-
-                        Integer idPartecipanteAccompagnato =
-                                peTipo3.getIdValoreTabella();
-
-
-                        if (idPartecipanteAccompagnato != null) {
-
-                            Partecipante partecipanteAccompagnato =
-                                    partecipanteRepository
-                                            .findById(
-                                                    idPartecipanteAccompagnato
-                                            )
-                                            .orElse(null);
-
-
-                            if (partecipanteAccompagnato != null) {
-
-                                String cognome =
-                                        partecipanteAccompagnato
-                                                .getCognome() == null
-                                                ? ""
-                                                : partecipanteAccompagnato
-                                                        .getCognome();
-
-
-                                String nome =
-                                        partecipanteAccompagnato
-                                                .getNome() == null
-                                                ? ""
-                                                : partecipanteAccompagnato
-                                                        .getNome();
-
-
-                                String nominativo =
-                                        (
-                                                cognome
-                                                + " "
-                                                + nome
-                                        ).trim();
-
-
-                                if (!nominativo.isEmpty()) {
-
-                                    listaAccompagna.add(
-                                            nominativo
-                                    );
-                                }
-                            }
-                        }
-                    }
-
-
+    
                     /*
                      * ====================================================
-                     * CON
+                     * COSTRUZIONE ACCOMPAGNA / CON
                      * ====================================================
-                     *
-                     * Anche CON viene mostrato SOLO se esiste
-                     * realmente la riga partecipante_evento.
-                     *
-                     * NON viene mai aggiunto automaticamente
-                     * il partecipante del foglio.
                      */
 
-                    if (
-                            "CON".equalsIgnoreCase(
-                                    descrizioneTipo3
-                            )
-                    ) {
 
-                        Integer idPartecipanteCon =
-                                peTipo3.getIdPartecipante();
 
+
+                        String descrizioneTipo3 =
+                        		eventoFiglio.getEvento().getDescrizione() == null
+                                        ? ""
+                                        : eventoFiglio.getEvento()
+                                                .getDescrizione()
+                                                .trim();
+
+
+                        /*
+                         * ====================================================
+                         * ACCOMPAGNA
+                         * ====================================================
+                         *
+                         * Deve esistere realmente una riga
+                         * partecipante_evento.
+                         *
+                         * id_valore_tabella =
+                         * partecipante accompagnato.
+                         */
 
                         if (
-                                idPartecipanteCon != null
-                                &&
-                                !idPartecipanteCon.equals(
-                                        idPartecipante
+                                "ACCOMPAGNA".equalsIgnoreCase(
+                                        descrizioneTipo3
                                 )
                         ) {
 
-                            Partecipante partecipanteCon =
-                                    partecipanteRepository
-                                            .findById(
-                                                    idPartecipanteCon
-                                            )
-                                            .orElse(null);
+                            Integer idPartecipanteAccompagnato =
+                            		eventoFiglio.getIdValoreTabella();
 
 
-                            if (partecipanteCon != null) {
+                            if (idPartecipanteAccompagnato != null) {
 
-                                String cognome =
-                                        partecipanteCon
-                                                .getCognome() == null
-                                                ? ""
-                                                : partecipanteCon
-                                                        .getCognome();
-
-
-                                String nome =
-                                        partecipanteCon
-                                                .getNome() == null
-                                                ? ""
-                                                : partecipanteCon
-                                                        .getNome();
+                                Partecipante partecipanteAccompagnato =
+                                        partecipanteRepository
+                                                .findById(
+                                                        idPartecipanteAccompagnato
+                                                )
+                                                .orElse(null);
 
 
-                                String nominativo =
-                                        (
-                                                cognome
-                                                + " "
-                                                + nome
-                                        ).trim();
+                                if (partecipanteAccompagnato != null) {
+
+                                    String cognome =
+                                            partecipanteAccompagnato
+                                                    .getCognome() == null
+                                                    ? ""
+                                                    : partecipanteAccompagnato
+                                                            .getCognome();
 
 
-                                if (!nominativo.isEmpty()) {
+                                    String nome =
+                                            partecipanteAccompagnato
+                                                    .getNome() == null
+                                                    ? ""
+                                                    : partecipanteAccompagnato
+                                                            .getNome();
 
-                                    listaCon.add(
-                                            nominativo
-                                    );
+
+                                    String nominativo =
+                                            (
+                                                    cognome
+                                                    + " "
+                                                    + nome
+                                            ).trim();
+
+
+                                    if (!nominativo.isEmpty()) {
+
+                                        listaAccompagna.add(
+                                                nominativo
+                                        );
+                                    }
                                 }
                             }
                         }
-                    }
+
+
+                        /*
+                         * ====================================================
+                         * CON
+                         * ====================================================
+                         *
+                         * Anche CON viene mostrato SOLO se esiste
+                         * realmente la riga partecipante_evento.
+                         *
+                         * NON viene mai aggiunto automaticamente
+                         * il partecipante del foglio.
+                         */
+
+                        if (
+                                "CON".equalsIgnoreCase(
+                                        descrizioneTipo3
+                                )
+                        ) {
+
+                            Integer idPartecipanteCon =
+                            		eventoFiglio.getIdValoreTabella();
+
+
+                            if (
+                                    idPartecipanteCon != null
+                                    &&
+                                    !idPartecipanteCon.equals(
+                                            idPartecipante
+                                    )
+                            ) {
+
+                                Partecipante partecipanteCon =
+                                        partecipanteRepository
+                                                .findById(
+                                                        idPartecipanteCon
+                                                )
+                                                .orElse(null);
+
+
+                                if (partecipanteCon != null) {
+
+                                    String cognome =
+                                            partecipanteCon
+                                                    .getCognome() == null
+                                                    ? ""
+                                                    : partecipanteCon
+                                                            .getCognome();
+
+
+                                    String nome =
+                                            partecipanteCon
+                                                    .getNome() == null
+                                                    ? ""
+                                                    : partecipanteCon
+                                                            .getNome();
+
+
+                                    String nominativo =
+                                            (
+                                                    cognome
+                                                    + " "
+                                                    + nome
+                                            ).trim();
+
+
+                                    if (!nominativo.isEmpty()) {
+
+                                        listaCon.add(
+                                                nominativo
+                                        );
+                                    }
+                                }
+                            }
+                        }
+  
                 }
-
-
+                
+                
                 /*
                  * ====================================================
                  * ORDINA E RIMUOVE DUPLICATI
@@ -1363,9 +1295,11 @@ public class JasperReportService {
                                 ", ",
                                 listaCon
                         );
-            }
 
 
+               
+                
+            
             /*
              * ====================================================
              * CREA DTO SERVIZIO
@@ -1384,9 +1318,10 @@ public class JasperReportService {
                             con
                     )
             );
+            }
 
-        }
         
+    
         /*
          * ========================================================
          * ORDINA SERVIZI PER ID EVENTO
@@ -1419,8 +1354,7 @@ public class JasperReportService {
          * ========================================================
          * RECUPERO MEDAGLIE DEL PARTECIPANTE
          * ========================================================
-         *
-         * tipoEvento.id = 2
+         *      
          */
 
         List<MedagliaReport> medaglieReport =
@@ -1447,7 +1381,7 @@ public class JasperReportService {
 
             /*
              * ====================================================
-             * SOLO EVENTI DI TIPO 2 = MEDAGLIA
+             * SOLO NOTE (MEDAGLIA)
              * ====================================================
              */
 
@@ -1456,10 +1390,9 @@ public class JasperReportService {
                     ||
                     evento.getTipoEvento().getId() == null
                     ||
-                    !evento
-                            .getTipoEvento()
-                            .getId()
-                            .equals(2)
+                    evento.getNote() == null
+                    ||
+                    evento.getNote().equals("")                  
             ) {
                 continue;
             }

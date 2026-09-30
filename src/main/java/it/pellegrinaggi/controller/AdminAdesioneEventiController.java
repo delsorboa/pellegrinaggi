@@ -416,7 +416,7 @@ public String salva(
                     idEvento
                 );
 
-    if (id == null && esistente.isPresent()) {
+    if (id == null && esistente.isPresent()&& esistente.get().getEvento() != null && !Boolean.TRUE.equals( esistente.get().getEvento().getMultiselezione())) {
 
         redirectAttributes.addFlashAttribute(
             "errore",

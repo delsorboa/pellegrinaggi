@@ -2,95 +2,99 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Evento</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/custom.css}">
+<meta charset="UTF-8">
+<title>Evento</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet" th:href="@{/css/custom.css}">
 </head>
 
 <body>
 
-<div th:replace="~{fragments/navbar-admin :: navbar-admin}"></div>
+	<div th:replace="~{fragments/navbar-admin :: navbar-admin}"></div>
 
-<div class="container mt-5 pt-4">
+	<div class="container mt-5 pt-4">
 
-    <h2 th:if="${evento.id == null}">
-        Nuovo Evento
-    </h2>
+		<h2 th:if="${evento.id == null}">Nuovo Evento</h2>
 
-    <h2 th:unless="${evento.id == null}">
-        Modifica Evento
-    </h2>
+		<h2 th:unless="${evento.id == null}">Modifica Evento</h2>
 
-    <form th:action="@{/admin/pellegrinaggi/{id}/eventi/salva(id=${pellegrinaggio.id})}"
-          th:object="${evento}"
-          method="post">
+		<form
+			th:action="@{/admin/pellegrinaggi/{id}/eventi/salva(id=${pellegrinaggio.id})}"
+			th:object="${evento}" method="post">
 
-        <!-- 1. ID (Nascosto) -->
-        <input type="hidden" th:field="*{id}">
-        
-        <!-- ID PELLEGRINAGGIO (Nascosto per non perderlo al salvataggio) -->
-        <input type="hidden" th:field="*{idPellegrinaggio}">
+			<!-- 1. ID (Nascosto) -->
+			<input type="hidden" th:field="*{id}">
 
-        <!-- 2. DESCRIZIONE -->
-        <div class="mb-3">
-            <label class="form-label">Descrizione</label>
-            <textarea class="form-control" rows="4" th:field="*{descrizione}"></textarea>
-        </div>
-        
-        <!-- 6. ID_TIPO_EVENTO (Combo con ID e data-nome aggiunti per JS) -->
-        <div class="mb-3">
-            <label class="form-label">Tipo evento</label>
-            <select class="form-select" id="comboTipoEvento" th:field="*{tipoEvento.id}" required>
-                <option value="">-- Seleziona tipo evento --</option>
-                <option th:each="tipo : ${tipiEvento}"
-                        th:value="${tipo.id}"
-                        th:data-nome="${tipo.descrizione.toLowerCase()}"
-                        th:text="${tipo.descrizione}">
-                </option>
-            </select>
-        </div>
-        
-        <!-- 5. ID_TABELLA (Combo con ID aggiunto per JS) -->
-        <div class="mb-3">
-            <label class="form-label">Tabella</label>
-            <select class="form-select" id="comboTabella" th:field="*{tabella.id}" required>
-                <option value="">-- Seleziona tabella --</option>
-                <option th:each="tabella : ${tabelle}"
-                        th:value="${tabella.id}"
-                        th:text="${tabella.descrizione}">
-                </option>
-            </select>
-        </div>
+			<!-- ID PELLEGRINAGGIO (Nascosto per non perderlo al salvataggio) -->
+			<input type="hidden" th:field="*{idPellegrinaggio}">
 
-        <!-- 4. NOTE -->
-        <div class="mb-3">
-            <label class="form-label">Note</label>
-            <textarea class="form-control" rows="4" th:field="*{note}"></textarea>
-        </div>
-        
-        <!-- 7. ID_EVENTO (Combo - Ricorsiva / Non obbligatoria) -->
-        <div class="mb-3">
-            <label class="form-label">Evento Correlato (Padre)</label>
-            <select class="form-select" th:field="*{eventoPadre.id}">
-                <option value="">-- Nessun evento correlato --</option>
-                <option th:each="ev : ${tuttiEventi}"
-                        th:if="${ev.id != evento.id}"
-                        th:value="${ev.id}"
-                        th:text="${ev.descrizione}">
-                </option>
-            </select>
-        </div>
+			<!-- 2. DESCRIZIONE -->
+			<div class="mb-3">
+				<label class="form-label">Descrizione</label>
+				<textarea class="form-control" rows="4" th:field="*{descrizione}"></textarea>
+			</div>
 
-        <!-- PULSANTI -->
-        <button type="submit" class="btn btn-success">Salva</button>
-        <a class="btn btn-secondary" th:href="@{/admin/pellegrinaggi/{id}/eventi(id=${pellegrinaggio.id})}">Annulla</a>
+			<!-- 6. ID_TIPO_EVENTO (Combo con ID e data-nome aggiunti per JS) -->
+			<div class="mb-3">
+				<label class="form-label">Tipo evento</label> <select
+					class="form-select" id="comboTipoEvento"
+					th:field="*{tipoEvento.id}" required>
+					<option value="">-- Seleziona tipo evento --</option>
+					<option th:each="tipo : ${tipiEvento}" th:value="${tipo.id}"
+						th:data-nome="${tipo.descrizione.toLowerCase()}"
+						th:text="${tipo.descrizione}"></option>
+				</select>
+			</div>
 
-    </form>
-</div>
+			<!-- 5. ID_TABELLA (Combo con ID aggiunto per JS) -->
+			<div class="mb-3">
+				<label class="form-label">Tabella</label> <select
+					class="form-select" id="comboTabella" th:field="*{tabella.id}"
+					required>
+					<option value="">-- Seleziona tabella --</option>
+					<option th:each="tabella : ${tabelle}" th:value="${tabella.id}"
+						th:text="${tabella.descrizione}"></option>
+				</select>
+			</div>
 
-<!-- SCRIPT JAVASCRIPT PER IL FILTRO A CASCATA -->
-<script th:inline="javascript">
+			<!-- 3. MULTISELEZIONE -->
+			<div class="mb-3">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="multiselezione"
+						th:field="*{multiselezione}"> <label
+						class="form-check-label" for="multiselezione">
+						Multiselezione </label>
+				</div>
+			</div>
+
+			<!-- 4. NOTE -->
+			<div class="mb-3">
+				<label class="form-label">Note</label>
+				<textarea class="form-control" rows="4" th:field="*{note}"></textarea>
+			</div>
+
+			<!-- 7. ID_EVENTO (Combo - Ricorsiva / Non obbligatoria) -->
+			<div class="mb-3">
+				<label class="form-label">Evento Correlato (Padre)</label> <select
+					class="form-select" th:field="*{eventoPadre.id}">
+					<option value="">-- Nessun evento correlato --</option>
+					<option th:each="ev : ${tuttiEventi}" th:if="${ev.id != evento.id}"
+						th:value="${ev.id}" th:text="${ev.descrizione}"></option>
+				</select>
+			</div>
+
+			<!-- PULSANTI -->
+			<button type="submit" class="btn btn-success">Salva</button>
+			<a class="btn btn-secondary"
+				th:href="@{/admin/pellegrinaggi/{id}/eventi(id=${pellegrinaggio.id})}">Annulla</a>
+
+		</form>
+	</div>
+
+	<!-- SCRIPT JAVASCRIPT PER IL FILTRO A CASCATA -->
+	<script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
         const comboTipoEvento = document.getElementById("comboTipoEvento");
         const comboTabella = document.getElementById("comboTabella");

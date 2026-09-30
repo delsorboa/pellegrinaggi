@@ -21,11 +21,14 @@ public interface EventoRepository
     	    SELECT e
     	    FROM Eventi e
     	    WHERE e.idPellegrinaggio = :idPellegrinaggio
-    	      AND NOT EXISTS (
-    	          SELECT pe
-    	          FROM PartecipanteEvento pe
-    	          WHERE pe.evento.id = e.id
-    	            AND pe.idPartecipante = :idPartecipante
+    	      AND (
+    	          e.multiselezione = true
+    	          OR NOT EXISTS (
+    	              SELECT pe
+    	              FROM PartecipanteEvento pe
+    	              WHERE pe.evento.id = e.id
+    	                AND pe.idPartecipante = :idPartecipante
+    	          )
     	      )
     	    ORDER BY e.descrizione
     	""")
@@ -35,7 +38,9 @@ public interface EventoRepository
     	);
     
     List<Eventi> findByIdPellegrinaggioAndEventoPadreIsNull(Integer idPellegrinaggio);
-
+    
+    
+  
 
 }
 

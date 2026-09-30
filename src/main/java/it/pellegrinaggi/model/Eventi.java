@@ -31,5 +31,9 @@ public class Eventi {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evento", nullable = true)
     private Eventi eventoPadre;
+       
+    // Nuovo campo booleano per la gestione della multiselezione
+    @Column(name = "multiselezione", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean multiselezione = false;
 }
 
