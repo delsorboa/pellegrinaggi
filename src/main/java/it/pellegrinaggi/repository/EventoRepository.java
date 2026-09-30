@@ -33,6 +33,8 @@ public interface EventoRepository
     	        @Param("idPellegrinaggio") Integer idPellegrinaggio,
     	        @Param("idPartecipante") Integer idPartecipante
     	);
+    
+    List<Eventi> findByIdPellegrinaggioAndEventoPadreIsNull(Integer idPellegrinaggio);
 
 
 }

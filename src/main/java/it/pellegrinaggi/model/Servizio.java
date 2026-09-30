@@ -17,5 +17,6 @@ public class Servizio {
 
     @Column(nullable = false)
     private String descrizione;
+    
 }
 

@@ -159,13 +159,20 @@ public class AdminAdesioneEventiController {
 
                                 descrizioneValore =
                                         valori.stream()
-                                                .filter(v ->
-                                                        v.getId().longValue()
-                                                                == pe.getIdValoreTabella()
-                                )
-                                .map(ValoreTabella::getDescrizione)
-                                .findFirst()
-                                .orElse("");
+                                                .filter(v -> {
+                                                    boolean match = v.getId() != null && pe.getIdValoreTabella() != null &&
+                                                            v.getId().longValue() == pe.getIdValoreTabella().longValue();
+                                                    
+                                                    // Stampa l'esito di ogni singolo confronto per capire se fallisce l'uguaglianza
+                                                    if (v.getId() != null) {
+                                                        System.out.println("   Confronto: " + v.getId().longValue() + " == " + pe.getIdValoreTabella().longValue() + " -> Risultato: " + match);
+                                                    }
+                                                    return match;
+                                                })
+                                                .map(ValoreTabella::getDescrizione)
+                                                .findFirst()
+                                                .orElse("");
+
                             }
 
 

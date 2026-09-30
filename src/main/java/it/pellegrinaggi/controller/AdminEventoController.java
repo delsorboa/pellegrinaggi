@@ -141,6 +141,9 @@ public class AdminEventoController {
                 "tipiEvento",
                 tipoEventoRepository.findAll()
         );
+        
+        // MODIFICATO: Prende solo gli eventi dello stesso pellegrinaggio con id_evento = null
+        model.addAttribute("tuttiEventi", eventoRepository.findByIdPellegrinaggioAndEventoPadreIsNull(idPellegrinaggio));
 
 
         return "admin/eventi/form";
@@ -190,6 +193,9 @@ public class AdminEventoController {
                 "tipiEvento",
                 tipoEventoRepository.findAll()
         );
+        
+        // MODIFICATO: Prende solo gli eventi dello stesso pellegrinaggio con id_evento = null
+        model.addAttribute("tuttiEventi", eventoRepository.findByIdPellegrinaggioAndEventoPadreIsNull(idPellegrinaggio)); 
 
 
         return "admin/eventi/form";
@@ -209,6 +215,21 @@ public class AdminEventoController {
         evento.setIdPellegrinaggio(
                 idPellegrinaggio
         );
+        
+        // 1. RISOLUZIONE ERRORE TRANSIENT PER EVENTO PADRE
+        if (evento.getEventoPadre() != null) {
+            if (evento.getEventoPadre().getId() == null) {
+                evento.setEventoPadre(null); // Rimuove l'istanza vuota inviata da Thymeleaf
+            }
+        }
+
+        // 2. PROTEZIONE PER LE ALTRE RELAZIONI (TipoEvento e Tabella)
+        if (evento.getTipoEvento() != null && evento.getTipoEvento().getId() == null) {
+            evento.setTipoEvento(null);
+        }
+        if (evento.getTabella() != null && evento.getTabella().getId() == null) {
+            evento.setTabella(null);
+        }
 
 
         eventoRepository.save(evento);

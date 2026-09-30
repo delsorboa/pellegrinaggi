@@ -230,6 +230,8 @@
                             
                             <input
                                 type="hidden"
+                                 th:if="${evento.tabella != null
+                                        and evento.tabella.id == 1}"
                                 name="idValoreTabella"
                                 th:value="1"
                                 th:form="'form-evento-' + ${evento.id}">

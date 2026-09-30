@@ -19,7 +19,6 @@ public class Eventi {
     @Column(name = "id_pellegrinaggio", nullable = false)
     private Integer idPellegrinaggio;
     
-    
     @ManyToOne
     @JoinColumn(name = "id_tipo_evento")
     private TipoEvento tipoEvento;
@@ -27,5 +26,10 @@ public class Eventi {
     @ManyToOne
     @JoinColumn(name = "id_tabella")
     private Tabella tabella;
+
+    // Chiave esterna non obbligatoria con se stesso
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_evento", nullable = true)
+    private Eventi eventoPadre;
 }
 
