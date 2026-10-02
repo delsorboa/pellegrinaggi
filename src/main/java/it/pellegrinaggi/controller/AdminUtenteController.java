@@ -186,6 +186,7 @@ public class AdminUtenteController {
 
         // Salvataggio nel campo password
         utente.setPassword(passwordCriptata);
+        utente.setCambioPasswordObbligatorio(true);
 
         repository.save(utente);
 
@@ -281,7 +282,7 @@ public class AdminUtenteController {
             if (utente.getPassword() != null && !utente.getPassword().isBlank()) {
                 utenteEsistente.setPassword(passwordEncoder.encode(utente.getPassword()));
             }
-
+                      
             repository.save(utenteEsistente);
         }
 
