@@ -93,65 +93,162 @@
 		</form>
 	</div>
 
-	<!-- SCRIPT JAVASCRIPT PER IL FILTRO A CASCATA -->
 	<script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
+
         const comboTipoEvento = document.getElementById("comboTipoEvento");
         const comboTabella = document.getElementById("comboTabella");
+        const checkboxMultiselezione = document.getElementById("multiselezione");
 
-        // Legge l'array completo inviato da Spring Boot
-        const tutteLeTabelle = [[${tabelle}]]; 
-        // Identifica il valore pre-selezionato a database in caso di modifica
-        const idTabellaIniziale = [[${evento.tabella != null ? evento.tabella.id : null}]];
+        // Array completo delle tabelle inviato da Spring Boot
+        const tutteLeTabelle = [[${tabelle}]];
+
+        // Tabella già selezionata in caso di modifica
+        const idTabellaIniziale =
+            [[${evento.tabella != null ? evento.tabella.id : null}]];
+
 
         function aggiornaComboTabella() {
-            const opzioneSelezionata = comboTipoEvento.options[comboTipoEvento.selectedIndex];
-            const nomeTipo = opzioneSelezionata ? (opzioneSelezionata.getAttribute("data-nome") || "") : "";
 
-            // Salva temporaneamente il valore selezionato per preservarlo durante il rendering
-            const valoreSelezionatoAttuale = comboTabella.value || idTabellaIniziale;
+            const opzioneSelezionata =
+                comboTipoEvento.options[comboTipoEvento.selectedIndex];
 
-            // Ripristina l'opzione vuota
-            comboTabella.innerHTML = '<option value="">-- Seleziona tabella --</option>';
+            const nomeTipo =
+                opzioneSelezionata
+                    ? (opzioneSelezionata.getAttribute("data-nome") || "")
+                    : "";
 
-            if (!nomeTipo) return;
+            // Mantiene temporaneamente la tabella selezionata
+            const valoreSelezionatoAttuale =
+                comboTabella.value || idTabellaIniziale;
+
+
+            // =====================================================
+            // GESTIONE MULTISELEZIONE
+            // =====================================================
+
+            if (nomeTipo.includes("unico")) {
+
+                // Per il tipo "Unico":
+                // multiselezione sempre disattivata
+                checkboxMultiselezione.checked = false;
+
+                // Checkbox non modificabile dall'utente
+                checkboxMultiselezione.disabled = true;
+
+            } else {
+
+                // Per gli altri tipi la checkbox è disponibile
+                checkboxMultiselezione.disabled = false;
+            }
+
+
+            // =====================================================
+            // RICOSTRUZIONE COMBO TABELLA
+            // =====================================================
+
+            comboTabella.innerHTML =
+                '<option value="">-- Seleziona tabella --</option>';
+
+            if (!nomeTipo) {
+                return;
+            }
+
+
+            // =====================================================
+            // TIPO EVENTO "UNICO"
+            // =====================================================
+
+            if (nomeTipo.includes("unico")) {
+
+                tutteLeTabelle.forEach(function (tabella) {
+
+                    const descrizioneTabella =
+                        tabella.descrizione.toLowerCase();
+
+                    if (descrizioneTabella.includes("scelta")) {
+
+                        const opt = document.createElement("option");
+
+                        opt.value = tabella.id;
+                        opt.text = tabella.descrizione;
+
+                        // Seleziona automaticamente la tabella "Scelta"
+                        opt.selected = true;
+
+                        comboTabella.appendChild(opt);
+                    }
+                });
+
+                return;
+            }
+
+
+            // =====================================================
+            // TIPO EVENTO "CONTENITORE"
+            // =====================================================
+
+            if (nomeTipo.includes("contenitore")) {
+
+                tutteLeTabelle.forEach(function (tabella) {
+
+                    const descrizioneTabella =
+                        tabella.descrizione.toLowerCase();
+
+                    if (
+                        descrizioneTabella.includes("servizi") ||
+                        descrizioneTabella.includes("partecipante")
+                    ) {
+
+                        const opt = document.createElement("option");
+
+                        opt.value = tabella.id;
+                        opt.text = tabella.descrizione;
+
+                        if (tabella.id == valoreSelezionatoAttuale) {
+                            opt.selected = true;
+                        }
+
+                        comboTabella.appendChild(opt);
+                    }
+                });
+
+                return;
+            }
+
+
+            // =====================================================
+            // ALTRI TIPI DI EVENTO
+            // =====================================================
 
             tutteLeTabelle.forEach(function (tabella) {
-                const descrizioneTabella = tabella.descrizione.toLowerCase();
-                let daAggiungere = false;
 
-                if (nomeTipo.includes("unico")) {
-                    if (descrizioneTabella.includes("scelta")) {
-                        daAggiungere = true;
-                    }
-                } else if (nomeTipo.includes("contenitore")) {
-                    if (descrizioneTabella.includes("servizi") || descrizioneTabella.includes("partecipante")) {
-                        daAggiungere = true;
-                    }
-                } else {
-                    daAggiungere = true;
+                const opt = document.createElement("option");
+
+                opt.value = tabella.id;
+                opt.text = tabella.descrizione;
+
+                if (tabella.id == valoreSelezionatoAttuale) {
+                    opt.selected = true;
                 }
 
-                if (daAggiungere) {
-                    const opt = document.createElement("option");
-                    opt.value = tabella.id;
-                    opt.text = tabella.descrizione;
-                    
-                    if (tabella.id == valoreSelezionatoAttuale) {
-                        opt.selected = true;
-                    }
-                    comboTabella.appendChild(opt);
-                }
+                comboTabella.appendChild(opt);
             });
         }
 
-        // Event listener per i cambi di selezione dell'utente
-        comboTipoEvento.addEventListener("change", aggiornaComboTabella);
 
-        // Avvio immediato per la gestione corretta della visualizzazione in modifica
+        // Quando cambia il tipo evento
+        comboTipoEvento.addEventListener(
+            "change",
+            aggiornaComboTabella
+        );
+
+
+        // Esecuzione iniziale
+        // Necessaria anche quando si modifica un evento esistente
         aggiornaComboTabella();
+
     });
 </script>
-
 </body>
 </html>
