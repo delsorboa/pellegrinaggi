@@ -187,6 +187,12 @@ public class AdminEventoController {
                 "evento",
                 evento
         );
+        
+        model.addAttribute(
+                "tabelle",
+                tabellaRepository.findAll()
+        );
+
 
 
         model.addAttribute(
